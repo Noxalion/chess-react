@@ -1,6 +1,6 @@
 import './App.css';
 
-function piece(row, column, maxRows, team) {
+function Piece(row, column, maxRows, team, onPieceClicked) {
   let type = null;
   let letter;
 
@@ -27,29 +27,31 @@ function piece(row, column, maxRows, team) {
   }
   
   if (type !== null) {
-    return(<li className={`piece ${team} ${type} c${row}-${column}`} key={letter + row + "-" + column} >{letter}</li>);
+    return(<li className={`piece ${team} ${type} c${row}-${column}`} key={letter + row + "-" + column} onClick={onPieceClicked}>{letter}</li>);
   }
 }
 
 
 
-function Pieces() {
+function Pieces(onPieceClicked) {
   let pieces = [];
   let team = "white";
+
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
       if (i >= 4) {
         team = "black";
       }
-      pieces.push(piece(i, j, 8, team));
+      pieces.push(Piece(i, j, 8, team, onPieceClicked));
     }
   }
+
   return pieces;
 }
 
 
 
-function Squares() {
+function Board() {
   var squares = [];
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
@@ -73,17 +75,23 @@ function Squares() {
 
 
 
-function Board() {
+function Game() {
+  let board = Board();
+  let pieces = Pieces();
+  function moveClicked(i){
+
+  }
+
   return (
     <div className='game'>
       <ul className="game__el board">
-        {Squares()}
+        {board}
       </ul>
       <ul className="game__el pieces">
-        {Pieces()}
+        {pieces}
       </ul>
     </div>
   );
 }
 
-export default Board;
+export default Game;

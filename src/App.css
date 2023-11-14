@@ -25,6 +25,7 @@ ul {
 }
 
 .case {
+  pointer-events: none;
   width: 100%;
   height: 100%;
   background-color: white;
@@ -40,8 +41,10 @@ ul {
   line-height: 1;
   -webkit-text-stroke: 2px black;
   text-align: center;
+  pointer-events: all;
 }
 .pieces {
+  pointer-events: none;
   z-index: 1;
   border: 2px solid transparent;
 }
