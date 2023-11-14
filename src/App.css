@@ -18,6 +18,33 @@ ul {
   height: 80vh;
 }
 
+.column-number {
+  position: absolute;
+  top: 5vh;
+  left: calc((100vw - 80vh) / 2);
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  width: 80vh;
+  font-size: 5vh;
+  line-height: 1;
+  text-align: center;
+}
+
+.row-number {
+  position: absolute;
+  top: 10vh;
+  left: calc((100vw - 80vh) / 2 - 10vh - 12px);
+  display: grid;
+  grid-template-columns: 1;
+  grid-template-rows: repeat(8, 1fr);
+  width: 10vh;
+  font-size: 5vh;
+  line-height: 1;
+  height: 80vh;
+  text-align: end;
+  align-items: center;
+}
+
 .board {
   z-index: 0;
   border: 2px solid black;
@@ -25,7 +52,7 @@ ul {
 }
 
 .case {
-  pointer-events: none;
+  pointer-events: all;
   width: 100%;
   height: 100%;
   background-color: white;
@@ -41,7 +68,7 @@ ul {
   line-height: 1;
   -webkit-text-stroke: 2px black;
   text-align: center;
-  pointer-events: all;
+  pointer-events: none;
 }
 .pieces {
   pointer-events: none;

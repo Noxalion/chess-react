@@ -1,6 +1,6 @@
 import './App.css';
 
-function Piece(row, column, maxRows, team, onPieceClicked) {
+function Piece(row, column, maxRows, team) {
   let type = null;
   let letter;
 
@@ -27,13 +27,13 @@ function Piece(row, column, maxRows, team, onPieceClicked) {
   }
   
   if (type !== null) {
-    return(<li className={`piece ${team} ${type} c${row}-${column}`} key={letter + row + "-" + column} onClick={onPieceClicked}>{letter}</li>);
+    return(<li className={`piece ${team} ${type} c${row}-${column}`} key={letter + row + "-" + column}>{letter}</li>);
   }
 }
 
 
 
-function Pieces(onPieceClicked) {
+function Pieces() {
   let pieces = [];
   let team = "white";
 
@@ -42,7 +42,7 @@ function Pieces(onPieceClicked) {
       if (i >= 4) {
         team = "black";
       }
-      pieces.push(Piece(i, j, 8, team, onPieceClicked));
+      pieces.push(Piece(i, j, 8, team));
     }
   }
 
@@ -53,37 +53,66 @@ function Pieces(onPieceClicked) {
 
 function Board() {
   var squares = [];
+  let team;
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
       if (i % 2 == 0) {
         if (j % 2 == 0) {
-          squares.push(<li className="case black" key={i + "-" + j} ></li>);
+          team = "white";
         }else{
-          squares.push(<li className="case" key={i + "-" + j}></li>);
+          team = "black";
         }
       }else{
         if (j % 2 == 0) {
-          squares.push(<li className="case" key={i + "-" + j}></li>);
+          team = "black";
         }else{
-          squares.push(<li className="case black" key={i + "-" + j}></li>);
+          team = "white";
         }
       }
+
+      squares.push(<Square key={i + "-" + j} color={team} onSquareClick={() => moveClicked((i + 1) + "-" + (j + 1))}></Square>);
     }
   }
+
+  function moveClicked(i){
+    console.log("clicked on " + i);
+  }
+
   return squares;
+}
+
+function Square({position, color, onSquareClick}){
+  return <li className={"case " + color} key={position} onClick={onSquareClick}></li>
 }
 
 
 
 function Game() {
-  let board = Board();
   let pieces = Pieces();
-  function moveClicked(i){
-
-  }
+  let board = Board();
 
   return (
     <div className='game'>
+      <ul className='row-number'>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+        <li>7</li>
+        <li>8</li>
+      </ul>
+      <ul className='column-number'>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+        <li>7</li>
+        <li>8</li>
+      </ul>
       <ul className="game__el board">
         {board}
       </ul>
