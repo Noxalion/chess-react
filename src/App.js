@@ -1,21 +1,20 @@
 import './App.css';
 
 function squares() {
-  var rows = [];
-  var lines = [];
+  var squares = [];
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {
       if (i % 2 == 0) {
         if (j % 2 == 0) {
-          squares.push(<div className="case black"></div>);
+          squares.push(<li className="case black" key={i + "-" + j} ></li>);
         }else{
-          squares.push(<div className="case"></div>);
+          squares.push(<li className="case" key={i + "-" + j}></li>);
         }
       }else{
         if (j % 2 == 0) {
-          squares.push(<div className="case"></div>);
+          squares.push(<li className="case" key={i + "-" + j}></li>);
         }else{
-          squares.push(<div className="case black"></div>);
+          squares.push(<li className="case black" key={i + "-" + j}></li>);
         }
       }
     }
@@ -23,13 +22,11 @@ function squares() {
   return squares;
 }
 
-console.log(squares());
-
 function Board() {
   return (
-    <div className="board">
+    <ul className="board">
       {squares()}
-    </div>
+    </ul>
   );
 }
 
