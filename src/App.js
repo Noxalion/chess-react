@@ -38,7 +38,7 @@ function Piece(row, column, maxRows, team) {
 
 //pour initialiser les pièces à leur position de départ
 function Pieces() {
-  let pieces = [];
+  let piecesTab = [];
   let team = "white";
 
   for (let i = 0; i < 8; i++) {
@@ -47,11 +47,11 @@ function Pieces() {
       if (i >= 4) {
         team = "black";
       }
-      pieces.push(Piece(i, j, 8, team));
+      piecesTab.push(Piece(i, j, 8, team));
     }
   }
 
-  return pieces;
+  return piecesTab;
 }
 
 
@@ -92,14 +92,25 @@ function Board() {
 
 //function caractérisant une case
 function Square({position, color, onSquareClick}){
-  return <li className={"square " + color} key={position} onClick={onSquareClick}></li>
+  return <li className={"square " + color} key={position} onClick={onSquareClick}>
+
+  </li>
 }
 
 
 
 function Game() {
-  let pieces = Pieces();
-  let board = Board();
+
+  let pieces = [
+    ['c', 'h', 'b', 'k', 'q', 'b', 'h', 'c'],
+    ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+    ['c', 'h', 'b', 'k', 'q', 'b', 'h', 'c']
+  ];
 
   //le rendu du plateau de jeu
   return (
@@ -125,10 +136,10 @@ function Game() {
         <li>8</li>
       </ul>
       <ul className="game__el board">
-        {board}
+        <Board />
       </ul>
       <ul className="game__el pieces">
-        {pieces}
+        <Pieces />
       </ul>
     </div>
   );
