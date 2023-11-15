@@ -61,6 +61,18 @@ ul {
 .square.black {
   background-color: black;
 }
+.square--selected {
+  position: relative;
+}
+.square--selected::before {
+  content: "";
+  font-size: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border: 5px solid orange;
+}
 
 .piece {
   text-transform: uppercase;

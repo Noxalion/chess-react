@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 //pour former le plateau et ses intéractions
 function Board(props) {
     //réattribut les props définis dans Game
@@ -5,6 +7,7 @@ function Board(props) {
     
     let squares = [];
     let squareColor;
+    const [selectedIndex, setSelectedIndex] = useState("");
     
     for (let i = 0; i < 8; i++) {
         let rowOfPiece = fullBoard[i];
@@ -30,7 +33,7 @@ function Board(props) {
             if (pieceInRow !== " ") {
                 thereIs = true;
             }
-            
+
             squares.push(
                 <Square 
                     key={i + "-" + j} 
@@ -40,6 +43,7 @@ function Board(props) {
                     row={i} 
                     column={j} 
                     pieceOnSquare={pieceInRow}
+                    selectedIndex={selectedIndex}
                 ></Square>
             );
         }
@@ -55,6 +59,7 @@ function Board(props) {
             let pieceHere = identifyPiece(pieceInRow);
             console.log("clicked on the " + pieceHere.side + " " + pieceHere.name + " on " + (row + 1) + "-" + (column + 1));
         }
+        setSelectedIndex(row + '-' + column);
     }
         
     return squares;
@@ -63,17 +68,25 @@ function Board(props) {
     
     
 //function caractérisant une case
-function Square({position, color, onSquareClick, isThereAPiece, row, column, pieceOnSquare}){
+function Square({position, color, onSquareClick, isThereAPiece, row, column, pieceOnSquare, selectedIndex}){
+    
     let squareRender;
+
+    let squareAspect;
+    if (selectedIndex === row + '-' + column) {
+        squareAspect = "square " + color + " square--selected";
+    }else{
+        squareAspect = "square " + color;
+    }
     
     if (isThereAPiece) {
         let pieceHere = identifyPiece(pieceOnSquare);
     
-        squareRender = (<li className={"square " + color} key={position} onClick={onSquareClick}>
+        squareRender = (<li className={squareAspect} key={position} onClick={onSquareClick}>
                             <div className={`piece ${pieceHere.side} ${pieceHere.name} c${row}-${column}`} key={pieceHere.type + row + "-" + column}>{pieceHere.type}</div>
                         </li>);
     }else{
-        squareRender = (<li className={"square " + color} key={position} onClick={onSquareClick}></li>);
+        squareRender = (<li className={squareAspect} key={position} onClick={onSquareClick}></li>);
     }
     
     return (squareRender);
