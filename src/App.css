@@ -70,11 +70,11 @@ ul {
   -webkit-text-stroke: 1px black;
   text-align: center;
   pointer-events: none;
-}
-.pieces {
-  pointer-events: none;
-  z-index: 1;
-  border: 2px solid transparent;
+  /*&s{
+      pointer-events: none;
+      z-index: 1;
+      border: 2px solid transparent;
+  }*/
 }
 .piece.black {
   color: black;
