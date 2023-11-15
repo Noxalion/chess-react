@@ -61,69 +61,64 @@ function Board(props) {
         if (selectPiece) {
             if (rowOfPiece[column] === ' ') {
                 //si clique sur une case sans pièce
-                setSelectedIndex('');
-                setSelectedDestination('');
-                setPieceSelected(null);
-    
-                console.log("clicked on empty " + (row + 1) + "-" + (column + 1));
+                setIndexAndDestination("", "");
+                
             }else{
                 //si clique sur une case avec pièce
-                setSelectedIndex(row + '-' + column);
-                setSelectedDestination('');
-                setSelectPiece(false);
-    
                 let pieceInRow = rowOfPiece[column];
                 let pieceHere = identifyPiece(pieceInRow);
-                setPieceSelected({
+
+                let pieceSelected = {
                     side: pieceHere.side,
                     type: pieceHere.type,
                     name: pieceHere.name,
                     coordinates: row + '-' + column
-                });
-    
-                console.log("clicked on the " + pieceHere.side + " " + pieceHere.name + " on " + (row + 1) + "-" + (column + 1));
+                };
+
+                setIndexAndDestination(row + '-' + column, "", pieceSelected, false);
             }
         }else{
             if (rowOfPiece[column] === ' ') {
-                //si clique sur une case sans pièce
-                setSelectedIndex('');
-                setSelectedDestination(row + '-' + column);
-                setSelectPiece(true);
-    
-                console.log("the " + pieceSelected.side + " " + pieceSelected.name + " move to destination " + (row + 1) + "-" + (column + 1));
-                setPieceSelected(null);
+                //si clique sur une case sans pièce (bouge la pièce)
+                setIndexAndDestination('', row + '-' + column);
+
             }else{
                 let pieceInRow = rowOfPiece[column];
                 let pieceHere = identifyPiece(pieceInRow);
 
                 if (row + '-' + column === pieceSelected.coordinates){
-                    setSelectedIndex('');
-                    setSelectedDestination('');
-                    setSelectPiece(true);
+                    //si clique sur la même case (déselectionne)
+                    setIndexAndDestination('', '');
 
-                    console.log("deselected the " + pieceSelected.side + " " + pieceSelected.name);
-                    setPieceSelected(null);
                 }else if (pieceHere.side === pieceSelected.side) {
-                    setSelectedIndex(row + '-' + column);
-                    setSelectedDestination('');
-                    setPieceSelected({
+                    //si clique sur une case avec une pièce alliée (la selectionne alors)
+                    let pieceSelected = {
                         side: pieceHere.side,
                         type: pieceHere.type,
                         name: pieceHere.name,
                         coordinates: row + '-' + column
-                    });
+                    };
 
-                    console.log("clicked on the " + pieceHere.side + " " + pieceHere.name + " on " + (row + 1) + "-" + (column + 1));
+                    setIndexAndDestination(row + '-' + column, '', pieceSelected, false);
+
                 }else{
-                    setSelectedIndex('');
-                    setSelectedDestination(row + '-' + column);
-                    setSelectPiece(true);
-
-                    console.log("the " + pieceSelected.side + " " + pieceSelected.name + " take the " + pieceHere.side + " " + pieceHere.name + " on " + (row + 1) + "-" + (column + 1));
-                    setPieceSelected(null);
+                    //si clique sur une case avec un poèce adverse (la mange)
+                    setIndexAndDestination('', row + '-' + column);
                 }
             }
         }
+
+        console.log("index :" + selectedIndex);
+        console.log("destination :" + selectedDestination);
+        console.log("pieceSelected :" + pieceSelected);
+        console.log("selectPiece :" + selectPiece);
+    }
+
+    function setIndexAndDestination(index, destination, piece = null, selectPiece = true){
+        setSelectedIndex(index);
+        setSelectedDestination(destination);
+        setPieceSelected(piece);
+        setSelectPiece(selectPiece);
     }
         
     return squares;
