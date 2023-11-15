@@ -7,7 +7,9 @@ function Board(props) {
     
     let squares = [];
     let squareColor;
+    //index de la case selectionnée
     const [selectedIndex, setSelectedIndex] = useState("");
+    const [selectedDestination, setSelectedDestination] = useState("");
     
     for (let i = 0; i < 8; i++) {
         let rowOfPiece = fullBoard[i];
@@ -53,13 +55,20 @@ function Board(props) {
     function moveClicked(row, column){
         let rowOfPiece = fullBoard[row];
         if (rowOfPiece[column] === ' ') {
+            //si clique sur une case sans pièce
+            setSelectedIndex('');
+
             console.log("clicked on empty " + (row + 1) + "-" + (column + 1));
         }else{
+            //si clique sur une case avec pièce
+            setSelectedIndex(row + '-' + column);
+
             let pieceInRow = rowOfPiece[column];
             let pieceHere = identifyPiece(pieceInRow);
+
             console.log("clicked on the " + pieceHere.side + " " + pieceHere.name + " on " + (row + 1) + "-" + (column + 1));
         }
-        setSelectedIndex(row + '-' + column);
+        
     }
         
     return squares;
