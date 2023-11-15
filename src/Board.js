@@ -10,6 +10,8 @@ function Board(props) {
     //index de la case selectionnée
     const [selectedIndex, setSelectedIndex] = useState("");
     const [selectedDestination, setSelectedDestination] = useState("");
+    const [selectPiece, setSelectPiece] = useState(true);
+    const [pieceSelected, setPieceSelected] = useState(null);
     
     for (let i = 0; i < 8; i++) {
         let rowOfPiece = fullBoard[i];
@@ -46,6 +48,7 @@ function Board(props) {
                     column={j} 
                     pieceOnSquare={pieceInRow}
                     selectedIndex={selectedIndex}
+                    selectedDestination={selectedDestination}
                 ></Square>
             );
         }
@@ -54,21 +57,73 @@ function Board(props) {
     //au clique d'une case
     function moveClicked(row, column){
         let rowOfPiece = fullBoard[row];
-        if (rowOfPiece[column] === ' ') {
-            //si clique sur une case sans pièce
-            setSelectedIndex('');
-
-            console.log("clicked on empty " + (row + 1) + "-" + (column + 1));
-        }else{
-            //si clique sur une case avec pièce
-            setSelectedIndex(row + '-' + column);
-
-            let pieceInRow = rowOfPiece[column];
-            let pieceHere = identifyPiece(pieceInRow);
-
-            console.log("clicked on the " + pieceHere.side + " " + pieceHere.name + " on " + (row + 1) + "-" + (column + 1));
-        }
         
+        if (selectPiece) {
+            if (rowOfPiece[column] === ' ') {
+                //si clique sur une case sans pièce
+                setSelectedIndex('');
+                setSelectedDestination('');
+                setPieceSelected(null);
+    
+                console.log("clicked on empty " + (row + 1) + "-" + (column + 1));
+            }else{
+                //si clique sur une case avec pièce
+                setSelectedIndex(row + '-' + column);
+                setSelectedDestination('');
+                setSelectPiece(false);
+    
+                let pieceInRow = rowOfPiece[column];
+                let pieceHere = identifyPiece(pieceInRow);
+                setPieceSelected({
+                    side: pieceHere.side,
+                    type: pieceHere.type,
+                    name: pieceHere.name,
+                    coordinates: row + '-' + column
+                });
+    
+                console.log("clicked on the " + pieceHere.side + " " + pieceHere.name + " on " + (row + 1) + "-" + (column + 1));
+            }
+        }else{
+            if (rowOfPiece[column] === ' ') {
+                //si clique sur une case sans pièce
+                setSelectedIndex('');
+                setSelectedDestination(row + '-' + column);
+                setSelectPiece(true);
+    
+                console.log("the " + pieceSelected.side + " " + pieceSelected.name + " move to destination " + (row + 1) + "-" + (column + 1));
+                setPieceSelected(null);
+            }else{
+                let pieceInRow = rowOfPiece[column];
+                let pieceHere = identifyPiece(pieceInRow);
+
+                if (row + '-' + column === pieceSelected.coordinates){
+                    setSelectedIndex('');
+                    setSelectedDestination('');
+                    setSelectPiece(true);
+
+                    console.log("deselected the " + pieceSelected.side + " " + pieceSelected.name);
+                    setPieceSelected(null);
+                }else if (pieceHere.side === pieceSelected.side) {
+                    setSelectedIndex(row + '-' + column);
+                    setSelectedDestination('');
+                    setPieceSelected({
+                        side: pieceHere.side,
+                        type: pieceHere.type,
+                        name: pieceHere.name,
+                        coordinates: row + '-' + column
+                    });
+
+                    console.log("clicked on the " + pieceHere.side + " " + pieceHere.name + " on " + (row + 1) + "-" + (column + 1));
+                }else{
+                    setSelectedIndex('');
+                    setSelectedDestination(row + '-' + column);
+                    setSelectPiece(true);
+
+                    console.log("the " + pieceSelected.side + " " + pieceSelected.name + " take the " + pieceHere.side + " " + pieceHere.name + " on " + (row + 1) + "-" + (column + 1));
+                    setPieceSelected(null);
+                }
+            }
+        }
     }
         
     return squares;
@@ -77,13 +132,15 @@ function Board(props) {
     
     
 //function caractérisant une case
-function Square({position, color, onSquareClick, isThereAPiece, row, column, pieceOnSquare, selectedIndex}){
+function Square({position, color, onSquareClick, isThereAPiece, row, column, pieceOnSquare, selectedIndex, selectedDestination}){
     
     let squareRender;
 
     let squareAspect;
     if (selectedIndex === row + '-' + column) {
         squareAspect = "square " + color + " square--selected";
+    }else if (selectedDestination === row + '-' + column) {
+        squareAspect = "square " + color + " square--move";
     }else{
         squareAspect = "square " + color;
     }
