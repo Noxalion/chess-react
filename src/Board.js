@@ -2,30 +2,30 @@
 function Board(props) {
     //réattribut les props définis dans Game
     let {fullBoard} = props;
-
+    
     let squares = [];
     let squareColor;
-
+    
     for (let i = 0; i < 8; i++) {
         let rowOfPiece = fullBoard[i];
         for (let j = 0; j < 8; j++) {
             //alternance des cases noires et blancs pour le damier
             if (i % 2 === 0) {
                 if (j % 2 === 0) {
-                squareColor = "white";
+                    squareColor = "white";
                 }else{
-                squareColor = "black";
+                    squareColor = "black";
                 }
             }else{
                 if (j % 2 === 0) {
-                squareColor = "black";
+                    squareColor = "black";
                 }else{
-                squareColor = "white";
+                    squareColor = "white";
                 }
             }
-
+    
             let pieceInRow = rowOfPiece[j];
-
+            
             let thereIs = false;
             if (pieceInRow !== " ") {
                 thereIs = true;
@@ -36,49 +36,72 @@ function Board(props) {
                     key={i + "-" + j} 
                     color={squareColor} 
                     onSquareClick={() => moveClicked(i, j)} 
-                    isThereAPiece={thereIs} row={i} column={j} 
+                    isThereAPiece={thereIs} 
+                    row={i} 
+                    column={j} 
                     pieceOnSquare={pieceInRow}
                 ></Square>
             );
         }
     }
-
+    
     //au clique d'une case
     function moveClicked(row, column){
         let rowOfPiece = fullBoard[row];
         if (rowOfPiece[column] === ' ') {
             console.log("clicked on empty " + (row + 1) + "-" + (column + 1));
         }else{
-            console.log("clicked on the piece on " + (row + 1) + "-" + (column + 1));
+            let pieceInRow = rowOfPiece[column];
+            let pieceHere = identifyPiece(pieceInRow);
+            console.log("clicked on the " + pieceHere.side + " " + pieceHere.name + " on " + (row + 1) + "-" + (column + 1));
         }
     }
-
+        
     return squares;
 }
-
-
-
+    
+    
+    
 //function caractérisant une case
 function Square({position, color, onSquareClick, isThereAPiece, row, column, pieceOnSquare}){
-let squareRender;
-
-if (isThereAPiece) {
-    pieceOnSquare.split();
-    let team;
-    if (pieceOnSquare[0] === "b") {
-        team = "black";
+    let squareRender;
+    
+    if (isThereAPiece) {
+        let pieceHere = identifyPiece(pieceOnSquare);
+    
+        squareRender = (<li className={"square " + color} key={position} onClick={onSquareClick}>
+                            <div className={`piece ${pieceHere.side} ${pieceHere.name} c${row}-${column}`} key={pieceHere.type + row + "-" + column}>{pieceHere.type}</div>
+                        </li>);
     }else{
-        team = "white";
+        squareRender = (<li className={"square " + color} key={position} onClick={onSquareClick}></li>);
     }
-
-    squareRender = (<li className={"square " + color} key={position} onClick={onSquareClick}>
-                        <div className={`piece ${team} ${pieceOnSquare[1]} c${row}-${column}`} key={pieceOnSquare[1] + row + "-" + column}>{pieceOnSquare[1]}</div>
-                    </li>);
-}else{
-    squareRender = (<li className={"square " + color} key={position} onClick={onSquareClick}></li>);
+    
+    return (squareRender);
 }
 
-    return (squareRender);
+
+//function pour identifier une pièce
+function identifyPiece(pieceNotation){
+    pieceNotation.split();
+    
+    let tableName = {
+        p: "pawn",
+        h: "horse",
+        b: "bishop",
+        c: "castle",
+        k: "king",
+        q: "queen"
+    };
+
+    let team = (pieceNotation[0] === "b") ? "black" : "white";
+    
+    let pieceIdentified = {
+        side: team,
+        type: pieceNotation[1],
+        name: tableName[pieceNotation[1]]
+    };
+
+    return pieceIdentified;
 }
 
 
