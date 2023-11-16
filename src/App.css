@@ -73,17 +73,17 @@ ul {
   box-sizing: border-box;
   border: 5px solid orange;
 }
-.square--move {
+.square--possibility {
   position: relative;
 }
-.square--move::before {
+.square--possibility::before {
   content: "";
   font-size: 0;
   position: absolute;
   width: 100%;
   height: 100%;
-  box-sizing: border-box;
-  border: 5px solid red;
+  background-color: greenyellow;
+  opacity: 90%;
 }
 
 .piece {

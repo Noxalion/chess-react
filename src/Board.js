@@ -1,4 +1,5 @@
 import { useState } from "react";
+import findMovement from './utils/ChessMovement';
 
 //pour former le plateau et ses intéractions
 function Board(props) {
@@ -7,12 +8,12 @@ function Board(props) {
     
     let squares = [];
     let squareColor;
-    //origine de la pièce selectionnée
-    const [originCoordinates, setOriginCoordinates] = useState("");
     //état de la selection
     const [selectionState, setSelectionState] = useState("selectPiece");
     //object avec les infos sur la pièce selectionnée
     const [pieceSelected, setPieceSelected] = useState(null);
+    //montre les possibilités de déplacement de la pièce
+    const [possibilitiesOfMoves, setPossibilitiesOfMoves] = useState(null);
     
     for (let i = 0; i < 8; i++) {
         let rowOfPiece = pieces[i];
@@ -28,10 +29,11 @@ function Board(props) {
                     color={squareColor} 
                     onSquareClick={() => clickOnSquare(i, j)}
                     row={i} 
-                    column={j} 
-                    pieceOnSquare={piece}
-                    originCoordinates={originCoordinates}
+                    column={j}
                     identifyPiece={identifyPiece}
+                    pieceOnSquare={piece}
+                    pieceSelected={pieceSelected}
+                    possibilitiesOfMoves={possibilitiesOfMoves}
                 ></Square>
             );
         }
@@ -45,11 +47,14 @@ function Board(props) {
             //au début du tour pour pouvoir selectionner une pièce que l'on veut déplacer (fait rien si clique sur une case sans pièce)
             
             let pieceHere = identifyPiece(piece, row, column);
-            setOrigin(row + '-' + column, pieceHere);
+            setPieceToMove(pieceHere);
+
         }else if (selectionState === "selectMove"){
             //pour après avoir selectionner une pièce
-            if (piece === '  ') {
+            
+            if (piece === '  ' && possibilitiesOfMoves.indexOf(row + '-' + column) !== -1) {
                 //si clique sur une case sans pièce (bouge la pièce)
+                console.log(possibilitiesOfMoves);
                 goToDestination(row + '-' + column);
 
             }else{
@@ -62,9 +67,9 @@ function Board(props) {
 
                 }else if (pieceHere.side === pieceSelected.side) {
                     //si clique sur une case avec une pièce alliée (la selectionne alors)
-                    setOrigin(row + '-' + column, pieceHere);
+                    setPieceToMove(pieceHere);
 
-                }else{
+                }else if(possibilitiesOfMoves.indexOf(row + '-' + column) !== -1){
                     //si clique sur une case avec un pièce adverse (la mange)
                     goToDestination(row + '-' + column);
                 }
@@ -74,22 +79,22 @@ function Board(props) {
 
     //function déselectionnant la pièce précédemment choisie
     function deselectPiece(){
-        setOriginCoordinates('');
         setPieceSelected(null);
         setSelectionState("selectPiece");
+        setPossibilitiesOfMoves(null);
     }
 
     //function enregistrant quelle pièce est à déplacer et depuis où
-    function setOrigin(origin, piece){
-        setOriginCoordinates(origin);
+    function setPieceToMove(piece){
         setPieceSelected(piece);
         setSelectionState("selectMove");
+        setPossibilitiesOfMoves(findMovement(piece, pieces, identifyPiece));
     }
 
     //function appliquant le déplacement choisi de la pièce
     function goToDestination(destination){
-        let start = pieceSelected.coordinates.split('-');
-        let finish = destination.split('-');
+        let startingCoordinates = pieceSelected.coordinates.split('-');
+        let finishCoordinates = destination.split('-');
 
         const nextPieces = pieces.slice();
         for (let i = 0; i < 8; i++) {
@@ -98,14 +103,14 @@ function Board(props) {
             }
         }
 
-        let squareOfStart = nextPieces[start[0]][start[1]];
-        nextPieces[start[0]][start[1]] = "  ";
-        nextPieces[finish[0]][finish[1]] = squareOfStart;
+        let squareOfStart = nextPieces[startingCoordinates[0]][startingCoordinates[1]];
+        nextPieces[startingCoordinates[0]][startingCoordinates[1]] = "  ";
+        nextPieces[finishCoordinates[0]][finishCoordinates[1]] = squareOfStart;
 
-        setPieces(nextPieces)        
+        setPieces(nextPieces);
         setSelectionState("selectPiece");
         setPieceSelected(null);
-        setOriginCoordinates("");
+        setPossibilitiesOfMoves(null);
     }
         
     //function pour identifier une pièce et crée l'object quand une pièce est selectionnée
@@ -117,8 +122,8 @@ function Board(props) {
             h: "horse",
             b: "bishop",
             c: "castle",
-            k: "king",
-            q: "queen"
+            q: "queen",
+            k: "king"
         };
     
         let team = (pieceNotation[0] === "b") ? "black" : "white";
@@ -137,11 +142,14 @@ function Board(props) {
 }
      
 //function caractérisant une case
-function Square({position, color, onSquareClick, row, column, pieceOnSquare, originCoordinates, destinationCoordinates, identifyPiece}){
+function Square({position, color, onSquareClick, row, column,identifyPiece, pieceOnSquare, pieceSelected, possibilitiesOfMoves}){
 
     let squareAspect;
-    if (originCoordinates === row + '-' + column) {
+
+    if (pieceSelected !== null && pieceSelected.coordinates === row + '-' + column) {
         squareAspect = "square " + color + " square--selected";
+    }else if (possibilitiesOfMoves !== null && possibilitiesOfMoves.indexOf(row + '-' + column) !== -1) {
+        squareAspect = "square " + color + " square--possibility";
     }else{
         squareAspect = "square " + color;
     }

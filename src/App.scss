@@ -78,7 +78,7 @@ ul{
         }
     }
 
-    &--move{
+    &--possibility{
         position: relative;
         &::before{
             content: "";
@@ -86,8 +86,8 @@ ul{
             position: absolute;
             width: 100%;
             height: 100%;
-            box-sizing: border-box;
-            border: 5px solid red;
+            background-color: greenyellow;
+            opacity: 90%;
         }
     }
 }
@@ -106,18 +106,3 @@ ul{
         -webkit-text-stroke: 1px white;
     }
 }
-
-/*
-.sq{
-    @for $i from 0 through 7 {
-        @for $j from 0 through 7 {
-            &#{$i}-#{$j}{
-                grid-row-start: calc($i + 1);
-                grid-row-end: calc($i + 2);
-                grid-column-start: calc($j + 1);
-                grid-column-end: calc($j + 2);
-            }
-        } 
-    }
-}
-*/
