@@ -32,18 +32,12 @@ function Board(props) {
             }
     
             let pieceInRow = rowOfPiece[j];
-            
-            let thereIs = false;
-            if (pieceInRow !== " ") {
-                thereIs = true;
-            }
 
             squares.push(
                 <Square 
                     key={i + "-" + j} 
                     color={squareColor} 
-                    onSquareClick={() => moveClicked(i, j)} 
-                    isThereAPiece={thereIs} 
+                    onSquareClick={() => moveClicked(i, j)}
                     row={i} 
                     column={j} 
                     pieceOnSquare={pieceInRow}
@@ -68,12 +62,7 @@ function Board(props) {
                 let pieceInRow = rowOfPiece[column];
                 let pieceHere = identifyPiece(pieceInRow);
 
-                let pieceSelected = {
-                    side: pieceHere.side,
-                    type: pieceHere.type,
-                    name: pieceHere.name,
-                    coordinates: row + '-' + column
-                };
+                let pieceSelected = createObjectPieceSelected(pieceHere, row, column);
 
                 setIndexAndDestination(row + '-' + column, "", pieceSelected, false);
             }
@@ -92,12 +81,7 @@ function Board(props) {
 
                 }else if (pieceHere.side === pieceSelected.side) {
                     //si clique sur une case avec une pièce alliée (la selectionne alors)
-                    let pieceSelected = {
-                        side: pieceHere.side,
-                        type: pieceHere.type,
-                        name: pieceHere.name,
-                        coordinates: row + '-' + column
-                    };
+                    let pieceSelected = createObjectPieceSelected(pieceHere, row, column);
 
                     setIndexAndDestination(row + '-' + column, '', pieceSelected, false);
 
@@ -107,11 +91,6 @@ function Board(props) {
                 }
             }
         }
-
-        console.log("index :" + selectedIndex);
-        console.log("destination :" + selectedDestination);
-        console.log("pieceSelected :" + pieceSelected);
-        console.log("selectPiece :" + selectPiece);
     }
 
     function setIndexAndDestination(index, destination, piece = null, selectPiece = true){
@@ -119,6 +98,24 @@ function Board(props) {
         setSelectedDestination(destination);
         setPieceSelected(piece);
         setSelectPiece(selectPiece);
+
+        //juste pour voir dans la console debug les actions faites
+        console.log("----------------------------------");
+        console.log("NOUVELLE ACTION");
+        console.log("index: " + index);
+        console.log("destination: " + destination);
+        console.log("pieceSelected: " + ((piece !== null) ? piece.side + " " + piece.name : "aucune"));
+        console.log("selectPiece: " + selectPiece);
+    }
+
+    //crée l'object quand une pièce est selectionnée
+    function createObjectPieceSelected(pieceSelected, row, column){
+        return {
+            side: pieceSelected.side,
+            type: pieceSelected.type,
+            name: pieceSelected.name,
+            coordinates: row + '-' + column
+        }
     }
         
     return squares;
@@ -127,9 +124,7 @@ function Board(props) {
     
     
 //function caractérisant une case
-function Square({position, color, onSquareClick, isThereAPiece, row, column, pieceOnSquare, selectedIndex, selectedDestination}){
-    
-    let squareRender;
+function Square({position, color, onSquareClick, row, column, pieceOnSquare, selectedIndex, selectedDestination}){
 
     let squareAspect;
     if (selectedIndex === row + '-' + column) {
@@ -140,17 +135,26 @@ function Square({position, color, onSquareClick, isThereAPiece, row, column, pie
         squareAspect = "square " + color;
     }
     
-    if (isThereAPiece) {
-        let pieceHere = identifyPiece(pieceOnSquare);
-    
-        squareRender = (<li className={squareAspect} key={position} onClick={onSquareClick}>
-                            <div className={`piece ${pieceHere.side} ${pieceHere.name} c${row}-${column}`} key={pieceHere.type + row + "-" + column}>{pieceHere.type}</div>
-                        </li>);
-    }else{
-        squareRender = (<li className={squareAspect} key={position} onClick={onSquareClick}></li>);
-    }
-    
-    return (squareRender);
+    let isThereAPiece = (pieceOnSquare !== " ");
+    let pieceHere = identifyPiece(pieceOnSquare);
+    let classes = `piece ${pieceHere.side} ${pieceHere.name} c${row}-${column}`;
+
+    return (
+        <li 
+            className={squareAspect}
+            key={position}
+            onClick={onSquareClick}
+        >
+            {isThereAPiece && 
+                <div 
+                    className={classes} 
+                    key={pieceHere.type + row + "-" + column}
+                >
+                    {pieceHere.type}
+                </div>
+            }
+        </li>
+    );
 }
 
 
