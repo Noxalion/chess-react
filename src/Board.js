@@ -28,31 +28,32 @@ function Board(props) {
                 <Square 
                     key={i + "-" + j} 
                     color={squareColor} 
-                    onSquareClick={() => moveClicked(i, j)}
+                    onSquareClick={() => clickOnSquare(i, j)}
                     row={i} 
                     column={j} 
                     pieceOnSquare={piece}
                     originCoordinates={originCoordinates}
                     destinationCoordinates={destinationCoordinates}
+                    identifyPiece={identifyPiece}
                 ></Square>
             );
         }
     }
     
     //au clique d'une case
-    function moveClicked(row, column){
+    function clickOnSquare(row, column){
         let piece = pieces[row][column];
         
         if (selectionState === "selectPiece" && piece !== '  ') {
             //au début du tour pour pouvoir selectionner une pièce que l'on veut déplacer (fait rien si clique sur une case sans pièce)
             
             let pieceHere = identifyPiece(piece, row, column);
-            setOriginAndDestination(row + '-' + column, "", pieceHere, "selectMove");
+            setOrigin(row + '-' + column, pieceHere);
         }else if (selectionState === "selectMove"){
             //pour après avoir selectionner une pièce
             if (piece === '  ') {
                 //si clique sur une case sans pièce (bouge la pièce)
-                setOriginAndDestination('', row + '-' + column);
+                goToDestination(row + '-' + column);
 
             }else{
                 //si clique sur une case avec pièce
@@ -60,21 +61,22 @@ function Board(props) {
 
                 if (pieceHere.coordinates === pieceSelected.coordinates){
                     //si clique sur la même case (déselectionne)
-                    setOriginAndDestination('', '');
+                    setOrigin('', null);
 
                 }else if (pieceHere.side === pieceSelected.side) {
                     //si clique sur une case avec une pièce alliée (la selectionne alors)
 
-                    setOriginAndDestination(row + '-' + column, '', pieceHere, "selectMove");
+                    setOrigin(row + '-' + column, pieceHere);
 
                 }else{
                     //si clique sur une case avec un poèce adverse (la mange)
-                    setOriginAndDestination('', row + '-' + column);
+                    goToDestination(row + '-' + column);
                 }
             }
         }
     }
 
+    /*
     function setOriginAndDestination(origin, destination, piece = null, selectionState = "selectPiece"){
         setOriginCoordinates(origin);
         setDestinationCoordinates(destination);
@@ -82,21 +84,69 @@ function Board(props) {
         setSelectionState(selectionState);
 
         //juste pour voir dans la console debug les actions faites
-        console.log("----------------------------------");
         console.log("NOUVELLE ACTION");
         console.log("origin: " + origin);
         console.log("destination: " + destination);
         console.log("pieceSelected: " + ((piece !== null) ? piece.side + " " + piece.name : "aucune"));
         console.log("next selectionState: " + selectionState);
+        console.log("----------------------------------");
+    }
+    */
+
+    function setOrigin(origin, piece = null){
+        setOriginCoordinates(origin);
+        setPieceSelected(piece);
+        setSelectionState("selectMove");
+
+        //juste pour voir dans la console debug les actions faites
+        console.log("NOUVELLE ORIGIN");
+        console.log("origin: " + origin);
+        console.log("pieceSelected: " + ((piece !== null) ? piece.side + " " + piece.name : "aucune"));
+        console.log("----------------------------------");
+    }
+
+    function goToDestination(destination){
+        setDestinationCoordinates(destination);
+        setSelectionState("selectPiece");
+
+        //juste pour voir dans la console debug les actions faites
+        console.log("NOUVELLE DESTINATION");
+        console.log("origin: " + originCoordinates);
+        console.log("destination: " + destination);
+        console.log("pieceSelected: " + pieceSelected);
+        console.log("----------------------------------");
     }
         
+    //function pour identifier une pièce et crée l'object quand une pièce est selectionnée
+    function identifyPiece(pieceNotation, row, column){
+        pieceNotation.split();
+        
+        let tableName = {
+            p: "pawn",
+            h: "horse",
+            b: "bishop",
+            c: "castle",
+            k: "king",
+            q: "queen"
+        };
+    
+        let team = (pieceNotation[0] === "b") ? "black" : "white";
+        
+        let pieceInfo = {
+            side: team,
+            type: pieceNotation[1],
+            name: tableName[pieceNotation[1]],
+            coordinates: row + '-' + column
+        };
+    
+        return pieceInfo;
+    }
+    
     return squares;
 }
-    
-    
-    
+     
 //function caractérisant une case
-function Square({position, color, onSquareClick, row, column, pieceOnSquare, originCoordinates, destinationCoordinates}){
+function Square({position, color, onSquareClick, row, column, pieceOnSquare, originCoordinates, destinationCoordinates, identifyPiece}){
 
     let squareAspect;
     if (originCoordinates === row + '-' + column) {
@@ -128,32 +178,5 @@ function Square({position, color, onSquareClick, row, column, pieceOnSquare, ori
         </li>
     );
 }
-
-
-//function pour identifier une pièce et crée l'object quand une pièce est selectionnée
-function identifyPiece(pieceNotation, row, column){
-    pieceNotation.split();
-    
-    let tableName = {
-        p: "pawn",
-        h: "horse",
-        b: "bishop",
-        c: "castle",
-        k: "king",
-        q: "queen"
-    };
-
-    let team = (pieceNotation[0] === "b") ? "black" : "white";
-    
-    let pieceInfo = {
-        side: team,
-        type: pieceNotation[1],
-        name: tableName[pieceNotation[1]],
-        coordinates: row + '-' + column
-    };
-
-    return pieceInfo;
-}
-
 
 export default Board;
