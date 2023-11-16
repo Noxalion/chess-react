@@ -3,35 +3,26 @@ import { useState } from "react";
 //pour former le plateau et ses intéractions
 function Board(props) {
     //réattribut les props définis dans Game
-    let {fullBoard} = props;
+    let {pieces, setPieces} = props;
     
     let squares = [];
     let squareColor;
-    //index de la case selectionnée
-    const [selectedIndex, setSelectedIndex] = useState("");
-    const [selectedDestination, setSelectedDestination] = useState("");
-    const [selectPiece, setSelectPiece] = useState(true);
+    //origine de la pièce selectionnée
+    const [originCoordinates, setOriginCoordinates] = useState("");
+    //destination de la pièce selectionnée
+    const [destinationCoordinates, setDestinationCoordinates] = useState("");
+    //état de la selection
+    const [selectionState, setSelectionState] = useState("selectPiece");
+    //object avec les infos sur la pièce selectionnée
     const [pieceSelected, setPieceSelected] = useState(null);
     
     for (let i = 0; i < 8; i++) {
-        let rowOfPiece = fullBoard[i];
+        let rowOfPiece = pieces[i];
         for (let j = 0; j < 8; j++) {
             //alternance des cases noires et blancs pour le damier
-            if (i % 2 === 0) {
-                if (j % 2 === 0) {
-                    squareColor = "white";
-                }else{
-                    squareColor = "black";
-                }
-            }else{
-                if (j % 2 === 0) {
-                    squareColor = "black";
-                }else{
-                    squareColor = "white";
-                }
-            }
+            squareColor = (i + j) % 2 === 0 ? "white" : "black";
     
-            let pieceInRow = rowOfPiece[j];
+            let piece = rowOfPiece[j];
 
             squares.push(
                 <Square 
@@ -40,9 +31,9 @@ function Board(props) {
                     onSquareClick={() => moveClicked(i, j)}
                     row={i} 
                     column={j} 
-                    pieceOnSquare={pieceInRow}
-                    selectedIndex={selectedIndex}
-                    selectedDestination={selectedDestination}
+                    pieceOnSquare={piece}
+                    originCoordinates={originCoordinates}
+                    destinationCoordinates={destinationCoordinates}
                 ></Square>
             );
         }
@@ -50,72 +41,53 @@ function Board(props) {
     
     //au clique d'une case
     function moveClicked(row, column){
-        let rowOfPiece = fullBoard[row];
+        let piece = pieces[row][column];
         
-        if (selectPiece) {
-            if (rowOfPiece[column] === ' ') {
-                //si clique sur une case sans pièce
-                setIndexAndDestination("", "");
-                
+        if (selectionState === "selectPiece" && piece !== '  ') {
+            //au début du tour pour pouvoir selectionner une pièce que l'on veut déplacer (fait rien si clique sur une case sans pièce)
+            
+            let pieceHere = identifyPiece(piece, row, column);
+            setOriginAndDestination(row + '-' + column, "", pieceHere, "selectMove");
+        }else if (selectionState === "selectMove"){
+            //pour après avoir selectionner une pièce
+            if (piece === '  ') {
+                //si clique sur une case sans pièce (bouge la pièce)
+                setOriginAndDestination('', row + '-' + column);
+
             }else{
                 //si clique sur une case avec pièce
-                let pieceInRow = rowOfPiece[column];
-                let pieceHere = identifyPiece(pieceInRow);
+                let pieceHere = identifyPiece(piece, row, column);
 
-                let pieceSelected = createObjectPieceSelected(pieceHere, row, column);
-
-                setIndexAndDestination(row + '-' + column, "", pieceSelected, false);
-            }
-        }else{
-            if (rowOfPiece[column] === ' ') {
-                //si clique sur une case sans pièce (bouge la pièce)
-                setIndexAndDestination('', row + '-' + column);
-
-            }else{
-                let pieceInRow = rowOfPiece[column];
-                let pieceHere = identifyPiece(pieceInRow);
-
-                if (row + '-' + column === pieceSelected.coordinates){
+                if (pieceHere.coordinates === pieceSelected.coordinates){
                     //si clique sur la même case (déselectionne)
-                    setIndexAndDestination('', '');
+                    setOriginAndDestination('', '');
 
                 }else if (pieceHere.side === pieceSelected.side) {
                     //si clique sur une case avec une pièce alliée (la selectionne alors)
-                    let pieceSelected = createObjectPieceSelected(pieceHere, row, column);
 
-                    setIndexAndDestination(row + '-' + column, '', pieceSelected, false);
+                    setOriginAndDestination(row + '-' + column, '', pieceHere, "selectMove");
 
                 }else{
                     //si clique sur une case avec un poèce adverse (la mange)
-                    setIndexAndDestination('', row + '-' + column);
+                    setOriginAndDestination('', row + '-' + column);
                 }
             }
         }
     }
 
-    function setIndexAndDestination(index, destination, piece = null, selectPiece = true){
-        setSelectedIndex(index);
-        setSelectedDestination(destination);
+    function setOriginAndDestination(origin, destination, piece = null, selectionState = "selectPiece"){
+        setOriginCoordinates(origin);
+        setDestinationCoordinates(destination);
         setPieceSelected(piece);
-        setSelectPiece(selectPiece);
+        setSelectionState(selectionState);
 
         //juste pour voir dans la console debug les actions faites
         console.log("----------------------------------");
         console.log("NOUVELLE ACTION");
-        console.log("index: " + index);
+        console.log("origin: " + origin);
         console.log("destination: " + destination);
         console.log("pieceSelected: " + ((piece !== null) ? piece.side + " " + piece.name : "aucune"));
-        console.log("selectPiece: " + selectPiece);
-    }
-
-    //crée l'object quand une pièce est selectionnée
-    function createObjectPieceSelected(pieceSelected, row, column){
-        return {
-            side: pieceSelected.side,
-            type: pieceSelected.type,
-            name: pieceSelected.name,
-            coordinates: row + '-' + column
-        }
+        console.log("next selectionState: " + selectionState);
     }
         
     return squares;
@@ -124,20 +96,20 @@ function Board(props) {
     
     
 //function caractérisant une case
-function Square({position, color, onSquareClick, row, column, pieceOnSquare, selectedIndex, selectedDestination}){
+function Square({position, color, onSquareClick, row, column, pieceOnSquare, originCoordinates, destinationCoordinates}){
 
     let squareAspect;
-    if (selectedIndex === row + '-' + column) {
+    if (originCoordinates === row + '-' + column) {
         squareAspect = "square " + color + " square--selected";
-    }else if (selectedDestination === row + '-' + column) {
+    }else if (destinationCoordinates === row + '-' + column) {
         squareAspect = "square " + color + " square--move";
     }else{
         squareAspect = "square " + color;
     }
     
-    let isThereAPiece = (pieceOnSquare !== " ");
-    let pieceHere = identifyPiece(pieceOnSquare);
-    let classes = `piece ${pieceHere.side} ${pieceHere.name} c${row}-${column}`;
+    let isThereAPiece = (pieceOnSquare !== "  ");
+    let pieceHere = identifyPiece(pieceOnSquare, row, column);
+    let classes = `piece ${pieceHere.side} ${pieceHere.name} sq${pieceHere.coordinates}`;
 
     return (
         <li 
@@ -148,7 +120,7 @@ function Square({position, color, onSquareClick, row, column, pieceOnSquare, sel
             {isThereAPiece && 
                 <div 
                     className={classes} 
-                    key={pieceHere.type + row + "-" + column}
+                    key={pieceHere.type + pieceHere.coordinates}
                 >
                     {pieceHere.type}
                 </div>
@@ -158,8 +130,8 @@ function Square({position, color, onSquareClick, row, column, pieceOnSquare, sel
 }
 
 
-//function pour identifier une pièce
-function identifyPiece(pieceNotation){
+//function pour identifier une pièce et crée l'object quand une pièce est selectionnée
+function identifyPiece(pieceNotation, row, column){
     pieceNotation.split();
     
     let tableName = {
@@ -173,13 +145,14 @@ function identifyPiece(pieceNotation){
 
     let team = (pieceNotation[0] === "b") ? "black" : "white";
     
-    let pieceIdentified = {
+    let pieceInfo = {
         side: team,
         type: pieceNotation[1],
-        name: tableName[pieceNotation[1]]
+        name: tableName[pieceNotation[1]],
+        coordinates: row + '-' + column
     };
 
-    return pieceIdentified;
+    return pieceInfo;
 }
 
 
