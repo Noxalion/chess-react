@@ -9,8 +9,6 @@ function Board(props) {
     let squareColor;
     //origine de la pièce selectionnée
     const [originCoordinates, setOriginCoordinates] = useState("");
-    //destination de la pièce selectionnée
-    const [destinationCoordinates, setDestinationCoordinates] = useState("");
     //état de la selection
     const [selectionState, setSelectionState] = useState("selectPiece");
     //object avec les infos sur la pièce selectionnée
@@ -33,7 +31,6 @@ function Board(props) {
                     column={j} 
                     pieceOnSquare={piece}
                     originCoordinates={originCoordinates}
-                    destinationCoordinates={destinationCoordinates}
                     identifyPiece={identifyPiece}
                 ></Square>
             );
@@ -61,60 +58,54 @@ function Board(props) {
 
                 if (pieceHere.coordinates === pieceSelected.coordinates){
                     //si clique sur la même case (déselectionne)
-                    setOrigin('', null);
+                    deselectPiece();
 
                 }else if (pieceHere.side === pieceSelected.side) {
                     //si clique sur une case avec une pièce alliée (la selectionne alors)
-
                     setOrigin(row + '-' + column, pieceHere);
 
                 }else{
-                    //si clique sur une case avec un poèce adverse (la mange)
+                    //si clique sur une case avec un pièce adverse (la mange)
                     goToDestination(row + '-' + column);
                 }
             }
         }
     }
 
-    /*
-    function setOriginAndDestination(origin, destination, piece = null, selectionState = "selectPiece"){
-        setOriginCoordinates(origin);
-        setDestinationCoordinates(destination);
-        setPieceSelected(piece);
-        setSelectionState(selectionState);
-
-        //juste pour voir dans la console debug les actions faites
-        console.log("NOUVELLE ACTION");
-        console.log("origin: " + origin);
-        console.log("destination: " + destination);
-        console.log("pieceSelected: " + ((piece !== null) ? piece.side + " " + piece.name : "aucune"));
-        console.log("next selectionState: " + selectionState);
-        console.log("----------------------------------");
+    //function déselectionnant la pièce précédemment choisie
+    function deselectPiece(){
+        setOriginCoordinates('');
+        setPieceSelected(null);
+        setSelectionState("selectPiece");
     }
-    */
 
-    function setOrigin(origin, piece = null){
+    //function enregistrant quelle pièce est à déplacer et depuis où
+    function setOrigin(origin, piece){
         setOriginCoordinates(origin);
         setPieceSelected(piece);
         setSelectionState("selectMove");
-
-        //juste pour voir dans la console debug les actions faites
-        console.log("NOUVELLE ORIGIN");
-        console.log("origin: " + origin);
-        console.log("pieceSelected: " + ((piece !== null) ? piece.side + " " + piece.name : "aucune"));
-        console.log("----------------------------------");
     }
 
+    //function appliquant le déplacement choisi de la pièce
     function goToDestination(destination){
-        setDestinationCoordinates(destination);
-        setSelectionState("selectPiece");
+        let start = pieceSelected.coordinates.split('-');
+        let finish = destination.split('-');
 
-        //juste pour voir dans la console debug les actions faites
-        console.log("NOUVELLE DESTINATION");
-        console.log("origin: " + originCoordinates);
-        console.log("destination: " + destination);
-        console.log("pieceSelected: " + pieceSelected);
-        console.log("----------------------------------");
+        const nextPieces = pieces.slice();
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                nextPieces[i][j].slice();
+            }
+        }
+
+        let squareOfStart = nextPieces[start[0]][start[1]];
+        nextPieces[start[0]][start[1]] = "  ";
+        nextPieces[finish[0]][finish[1]] = squareOfStart;
+
+        setPieces(nextPieces)        
+        setSelectionState("selectPiece");
+        setPieceSelected(null);
+        setOriginCoordinates("");
     }
         
     //function pour identifier une pièce et crée l'object quand une pièce est selectionnée
@@ -151,8 +142,6 @@ function Square({position, color, onSquareClick, row, column, pieceOnSquare, ori
     let squareAspect;
     if (originCoordinates === row + '-' + column) {
         squareAspect = "square " + color + " square--selected";
-    }else if (destinationCoordinates === row + '-' + column) {
-        squareAspect = "square " + color + " square--move";
     }else{
         squareAspect = "square " + color;
     }
