@@ -45,16 +45,17 @@ function Board(props) {
         
         if (selectionState === "selectPiece" && piece !== '  ') {
             //au début du tour pour pouvoir selectionner une pièce que l'on veut déplacer (fait rien si clique sur une case sans pièce)
-            
             let pieceHere = identifyPiece(piece, row, column);
             setPieceToMove(pieceHere);
 
         }else if (selectionState === "selectMove"){
             //pour après avoir selectionner une pièce
-            
-            if (piece === '  ' && possibilitiesOfMoves.indexOf(row + '-' + column) !== -1) {
+            console.log(possibilitiesOfMoves.indexOf(row + '-' + column) !== -1);
+            /* if (possibilitiesOfMoves.indexOf(row + '-' + column) === -1) {
+                deselectPiece();
+            }else */
+            if ((possibilitiesOfMoves.indexOf(row + '-' + column) !== -1) && piece === '  ') {
                 //si clique sur une case sans pièce (bouge la pièce)
-                console.log(possibilitiesOfMoves);
                 goToDestination(row + '-' + column);
 
             }else{
@@ -148,7 +149,7 @@ function Square({position, color, onSquareClick, row, column,identifyPiece, piec
 
     if (pieceSelected !== null && pieceSelected.coordinates === row + '-' + column) {
         squareAspect = "square " + color + " square--selected";
-    }else if (possibilitiesOfMoves !== null && possibilitiesOfMoves.indexOf(row + '-' + column) !== -1) {
+    }else if (possibilitiesOfMoves !== null && (possibilitiesOfMoves.indexOf(row + '-' + column) !== -1)) {
         squareAspect = "square " + color + " square--possibility";
     }else{
         squareAspect = "square " + color;

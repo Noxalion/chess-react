@@ -5,70 +5,101 @@ function findMovement(piece, pieces,identifyPiece){
             return movePawn(piece, pieces);
 
         case "horse":
-            
-            break;
+            return null;
 
         case "bishop":
-            
-            break;
+            return null;
 
         case "castle":
-            
-            break;
+            return null;
 
         case "queen":
-            
-            break;
+            return null;
 
         case "king":
-            
-            break;
+            return null;
     
         default:
             break;
     }
 
 
-
+    //function pour voir les possibilités de déplacement d'un pion
     function movePawn(piece, pieces){
         let squareOfPossibilities = [];
-        let pieceRow = piece.coordinates.split('-')[0];
-        let pieceColumn = piece.coordinates.split('-')[1];
+        let pieceRow = Number(piece.coordinates.split('-')[0]);
+        let pieceColumn = Number(piece.coordinates.split('-')[1]);
 
         if (piece.side === "white") {
-            if (pieceRow === "1") {
+            //pour les déplacements basique du pion
+            if (pieceRow === 1) {
+                //s'il n'a pas encore bougé, un pion peut avancer de deux cases
                 for (let i = 1; i < 3; i++) {
-                    squareOfPossibilities.push((Number(pieceRow) + i) + "-" + pieceColumn); 
+                    setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, i);
                 }
                 
             }else{
-                squareOfPossibilities.push((Number(pieceRow) + 1) + "-" + pieceColumn);
+                //déplacement normal
+                setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, 1);
             }
-        }else{
-            if (pieceRow === "6") {
+
+            //pour voir si le pion peut prendre ou pas (prise en diagonale uniquement)
+            for (let i = -1; i < 2; i+=2) {
+                let verticalToTake = pieceRow + 1;
+                let horizontalToTake = pieceColumn + i;
+                if (pieces[verticalToTake][horizontalToTake] !== "  " && verticalToTake < 8 && verticalToTake > -1 && horizontalToTake < 8 && horizontalToTake > -1) {
+                    if (identifyPiece(pieces[verticalToTake][horizontalToTake], verticalToTake, horizontalToTake).side !== "white") {
+                        setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, 1, i);
+                    }
+                }
+            }
+        }else if(piece.side === "black"){
+            //pour les déplacements basique du pion
+            if (pieceRow === 6) {
+                //s'il n'a pas encore bougé, un pion peut avancer de deux cases
                 for (let i = 1; i < 3; i++) {
-                    squareOfPossibilities.push((Number(pieceRow) - i) + "-" + pieceColumn); 
+                    setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, -i); 
                 }
             }else{
-                squareOfPossibilities.push((Number(pieceRow) - 1) + "-" + pieceColumn);
+                //déplacement normal
+                setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, -1); 
             }
-        }
 
-        if (piece.side === "white") {
+            //pour voir si le pion peut prendre ou pas (prise en diagonale uniquement)
             for (let i = -1; i < 2; i+=2) {
-                if (pieces[Number(pieceRow) + 1][Number(pieceColumn) + i] !== "  " && identifyPiece(pieces[Number(pieceRow) + 1][Number(pieceColumn) + i], [Number(pieceRow) + 1], [Number(pieceColumn) + i]).side !== "white") {
-                    squareOfPossibilities.push((Number(pieceRow) + 1) + "-" + (Number(pieceColumn) + i));
-                }
-            }
-        }else{
-            for (let i = -1; i < 2; i+=2) {
-                if (pieces[Number(pieceRow) - 1][Number(pieceColumn) + i] !== "  " && identifyPiece(pieces[Number(pieceRow) - 1][Number(pieceColumn) + i], [Number(pieceRow) - 1], [Number(pieceColumn) - i]).side !== "black") {
-                    squareOfPossibilities.push((Number(pieceRow) + 1) + "-" + (Number(pieceColumn) + i));
+                let verticalToTake = pieceRow - 1;
+                let horizontalToTake = pieceColumn + i;
+                if (pieces[verticalToTake][horizontalToTake] !== "  " && checkIfInBoard(verticalToTake, horizontalToTake)) {
+                    if (identifyPiece(pieces[verticalToTake][horizontalToTake], verticalToTake, horizontalToTake).side !== "black") {
+                        setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, -1, i);
+                    }
                 }
             }
         }
         
+        console.log(squareOfPossibilities);
         return squareOfPossibilities;
+    }
+
+    //function pour set les cases possibles pour les déplacements
+    function setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, verticalMove, horizontalMove = 0){
+        
+        let newVerticalCoordinate = pieceRow + verticalMove;
+        let newHorizontalCoordinate = pieceColumn + horizontalMove;
+
+        if(checkIfInBoard(newVerticalCoordinate, newHorizontalCoordinate)){
+            squareOfPossibilities.push(newVerticalCoordinate + "-" + newHorizontalCoordinate);
+        }
+    }
+
+    //function pour check si les données sont toujours dans les coordonnées possibles du plateau
+    function checkIfInBoard(rowCoordinate, columnCoordinate){
+        let inBoard = false;
+        if ((rowCoordinate > -1 && rowCoordinate < 8) && (columnCoordinate > -1 && columnCoordinate < 8)) {
+            inBoard = true;
+        }
+
+        return inBoard;
     }
 }
 
