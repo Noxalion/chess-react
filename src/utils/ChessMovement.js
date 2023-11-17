@@ -42,29 +42,26 @@ function findMovement(piece, pieces,identifyPiece){
             factorForUpAndDown = -1;
         }
 
-        //pour les déplacements basique du pion
+        //s'il n'a pas encore bougé, un pion peut avancer de deux cases et faisant une boucle commençant à 1 et ne comprenant pas le max, je définis à la portée max du pion + 1 
+        let maxRangeForPawnPlus1 = 2;
         if (pieceRow === pieceStartingRow) {
-            //s'il n'a pas encore bougé, un pion peut avancer de deux cases
-            for (let i = 1; i < 3; i++) {
-                let additionFactor = (i * factorForUpAndDown);
-                if (pieces[pieceRow + additionFactor][pieceColumn] === "  " && checkIfInBoard(pieceRow + additionFactor, pieceColumn)) {
+            maxRangeForPawnPlus1 = 3;
+        }
+
+        //la boucle pour gérer la portée du pion
+        for (let i = 1; i < maxRangeForPawnPlus1; i++) {
+            let additionFactor = (i * factorForUpAndDown);
+            if (checkIfInBoard(pieceRow + additionFactor, pieceColumn)) {
+                if (pieces[pieceRow + additionFactor][pieceColumn] === "  ") {
                     let possibility = setPossibility(pieceRow, pieceColumn, additionFactor);
                     if (possibility) {
                         possibilitiesOfMoves.push(possibility);
                     }
                 }else{
-                    i = 3;
-                }
-            }
-        }else{
-            let additionFactor = (1 * factorForUpAndDown);
-            //déplacement normal
-            if (pieces[pieceRow + additionFactor][pieceColumn] === "  " && checkIfInBoard(pieceRow + additionFactor, pieceColumn)) {
-                let possibility = setPossibility(pieceRow, pieceColumn, additionFactor);
-                if (possibility) {
-                    possibilitiesOfMoves.push(possibility);
-                }
-            }
+                    //entre ici si le pion rencontre un obstacle
+                    i = maxRangeForPawnPlus1;
+                } 
+            }    
         }
 
         //pour voir si le pion peut prendre ou pas (prise en diagonale uniquement)
@@ -72,11 +69,13 @@ function findMovement(piece, pieces,identifyPiece){
             let additionFactor = (1 * factorForUpAndDown);
             let verticalToTake = pieceRow + additionFactor;
             let horizontalToTake = pieceColumn + i;
-            if (pieces[verticalToTake][horizontalToTake] !== "  " && checkIfInBoard(verticalToTake, horizontalToTake)) {
-                if (identifyPiece(pieces[verticalToTake][horizontalToTake], verticalToTake, horizontalToTake).side !== piece.side) {
-                    let possibility = setPossibility(pieceRow, pieceColumn, additionFactor, i);
-                    if (possibility) {
-                        possibilitiesOfMoves.push(possibility);
+            if (checkIfInBoard(verticalToTake, horizontalToTake)) {
+                if (pieces[verticalToTake][horizontalToTake] !== "  ") {
+                    if (identifyPiece(pieces[verticalToTake][horizontalToTake], verticalToTake, horizontalToTake).side !== piece.side) {
+                        let possibility = setPossibility(pieceRow, pieceColumn, additionFactor, i);
+                        if (possibility) {
+                            possibilitiesOfMoves.push(possibility);
+                        }
                     }
                 }
             }
