@@ -29,61 +29,54 @@ function findMovement(piece, pieces,identifyPiece){
         let possibilitiesOfMoves = [];
         let pieceRow = Number(piece.coordinates.split('-')[0]);
         let pieceColumn = Number(piece.coordinates.split('-')[1]);
+        //ligne de départ d'un pion, dépend dans quel camp il est
+        let pieceStartingRow;
+        //facteur pour gérer la direction du pion, -1 pour aller vers le haut, 1 pour aller vers le bas
+        let factorForUpAndDown;
 
         if (piece.side === "white") {
-            //pour les déplacements basique du pion
-            if (pieceRow === 1) {
-                //s'il n'a pas encore bougé, un pion peut avancer de deux cases
-                for (let i = 1; i < 3; i++) {
-                    if (pieces[pieceRow + i][pieceColumn] === "  " && checkIfInBoard(pieceRow + i, pieceColumn)) {
-                        setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, i);
-                    }else{
-                        i = 3;
-                    }
-                }
-                
-            }else{
-                //déplacement normal
-                if (pieces[pieceRow + 1][pieceColumn] === "  " && checkIfInBoard(pieceRow + 1, pieceColumn)) {
-                    setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, 1);
-                }
-            }
-
-            //pour voir si le pion peut prendre ou pas (prise en diagonale uniquement)
-            for (let i = -1; i < 2; i+=2) {
-                let verticalToTake = pieceRow + 1;
-                let horizontalToTake = pieceColumn + i;
-                if (pieces[verticalToTake][horizontalToTake] !== "  " && checkIfInBoard(verticalToTake, horizontalToTake)) {
-                    if (identifyPiece(pieces[verticalToTake][horizontalToTake], verticalToTake, horizontalToTake).side !== "white") {
-                        setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, 1, i);
-                    }
-                }
-            }
+            pieceStartingRow = 1;
+            factorForUpAndDown = 1;
         }else if(piece.side === "black"){
-            //pour les déplacements basique du pion
-            if (pieceRow === 6) {
-                //s'il n'a pas encore bougé, un pion peut avancer de deux cases
-                for (let i = 1; i < 3; i++) {
-                    if (pieces[pieceRow - i][pieceColumn] === "  " && checkIfInBoard(pieceRow - i, pieceColumn)) {
-                        setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, -i);
-                    }else{
-                        i = 3;
+            pieceStartingRow = 6;
+            factorForUpAndDown = -1;
+        }
+
+        //pour les déplacements basique du pion
+        if (pieceRow === pieceStartingRow) {
+            //s'il n'a pas encore bougé, un pion peut avancer de deux cases
+            for (let i = 1; i < 3; i++) {
+                let additionFactor = (i * factorForUpAndDown);
+                if (pieces[pieceRow + additionFactor][pieceColumn] === "  " && checkIfInBoard(pieceRow + additionFactor, pieceColumn)) {
+                    let possibility = setPossibility(pieceRow, pieceColumn, additionFactor);
+                    if (possibility) {
+                        possibilitiesOfMoves.push(possibility);
                     }
-                }
-            }else{
-                //déplacement normal
-                if (pieces[pieceRow - 1][pieceColumn] === "  " && checkIfInBoard(pieceRow - 1, pieceColumn)) {
-                    setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, -1); 
+                }else{
+                    i = 3;
                 }
             }
+        }else{
+            let additionFactor = (1 * factorForUpAndDown);
+            //déplacement normal
+            if (pieces[pieceRow + additionFactor][pieceColumn] === "  " && checkIfInBoard(pieceRow + additionFactor, pieceColumn)) {
+                let possibility = setPossibility(pieceRow, pieceColumn, additionFactor);
+                if (possibility) {
+                    possibilitiesOfMoves.push(possibility);
+                }
+            }
+        }
 
-            //pour voir si le pion peut prendre ou pas (prise en diagonale uniquement)
-            for (let i = -1; i < 2; i+=2) {
-                let verticalToTake = pieceRow - 1;
-                let horizontalToTake = pieceColumn + i;
-                if (pieces[verticalToTake][horizontalToTake] !== "  " && checkIfInBoard(verticalToTake, horizontalToTake)) {
-                    if (identifyPiece(pieces[verticalToTake][horizontalToTake], verticalToTake, horizontalToTake).side !== "black") {
-                        setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, -1, i);
+        //pour voir si le pion peut prendre ou pas (prise en diagonale uniquement)
+        for (let i = -1; i < 2; i+=2) {
+            let additionFactor = (1 * factorForUpAndDown);
+            let verticalToTake = pieceRow + additionFactor;
+            let horizontalToTake = pieceColumn + i;
+            if (pieces[verticalToTake][horizontalToTake] !== "  " && checkIfInBoard(verticalToTake, horizontalToTake)) {
+                if (identifyPiece(pieces[verticalToTake][horizontalToTake], verticalToTake, horizontalToTake).side !== piece.side) {
+                    let possibility = setPossibility(pieceRow, pieceColumn, additionFactor, i);
+                    if (possibility) {
+                        possibilitiesOfMoves.push(possibility);
                     }
                 }
             }
@@ -94,13 +87,15 @@ function findMovement(piece, pieces,identifyPiece){
     }
 
     //function pour set les cases possibles pour les déplacements
-    function setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, verticalMove, horizontalMove = 0){
+    function setPossibility(pieceRow, pieceColumn, verticalMove, horizontalMove = 0){
         
         let newVerticalCoordinate = pieceRow + verticalMove;
         let newHorizontalCoordinate = pieceColumn + horizontalMove;
 
         if(checkIfInBoard(newVerticalCoordinate, newHorizontalCoordinate)){
-            possibilitiesOfMoves.push(newVerticalCoordinate + "-" + newHorizontalCoordinate);
+            return newVerticalCoordinate + "-" + newHorizontalCoordinate;
+        }else{
+            return null;
         }
     }
 

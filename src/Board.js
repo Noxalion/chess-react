@@ -50,9 +50,12 @@ function Board(props) {
 
         }else if (selectionState === "selectMove"){
             //pour après avoir selectionner une pièce
-            if (possibilitiesOfMoves.includes(row + '-' + column) && piece === '  ') {
+            if (piece === '  ') {
                 //si clique sur une case sans pièce (bouge la pièce)
-                goToDestination(row + '-' + column);
+                if (possibilitiesOfMoves.includes(row + '-' + column)) {
+                    //vérifie que cette case est bien dans les déplacements possibles
+                    goToDestination(row + '-' + column);
+                }
 
             }else{
                 //si clique sur une case avec pièce
@@ -143,7 +146,7 @@ function Square({position, color, onSquareClick, row, column,identifyPiece, piec
 
     let squareAspect;
 
-    if (pieceSelected !== null && pieceSelected.coordinates === row + '-' + column) {
+    if (pieceSelected && pieceSelected.coordinates === row + '-' + column) {
         squareAspect = "square " + color + " square--selected";
     }else if (possibilitiesOfMoves.includes(row + '-' + column)) {
         squareAspect = "square " + color + " square--possibility";
