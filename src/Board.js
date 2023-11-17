@@ -50,11 +50,7 @@ function Board(props) {
 
         }else if (selectionState === "selectMove"){
             //pour après avoir selectionner une pièce
-            console.log(possibilitiesOfMoves.indexOf(row + '-' + column) !== -1);
-            /* if (possibilitiesOfMoves.indexOf(row + '-' + column) === -1) {
-                deselectPiece();
-            }else */
-            if ((possibilitiesOfMoves.indexOf(row + '-' + column) !== -1) && piece === '  ') {
+            if (possibilitiesOfMoves !== null && (possibilitiesOfMoves.indexOf(row + '-' + column) !== -1) && piece === '  ') {
                 //si clique sur une case sans pièce (bouge la pièce)
                 goToDestination(row + '-' + column);
 
@@ -70,7 +66,7 @@ function Board(props) {
                     //si clique sur une case avec une pièce alliée (la selectionne alors)
                     setPieceToMove(pieceHere);
 
-                }else if(possibilitiesOfMoves.indexOf(row + '-' + column) !== -1){
+                }else if(possibilitiesOfMoves !== null && (possibilitiesOfMoves.indexOf(row + '-' + column) !== -1)){
                     //si clique sur une case avec un pièce adverse (la mange)
                     goToDestination(row + '-' + column);
                 }
