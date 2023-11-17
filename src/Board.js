@@ -13,7 +13,7 @@ function Board(props) {
     //object avec les infos sur la pièce selectionnée
     const [pieceSelected, setPieceSelected] = useState(null);
     //montre les possibilités de déplacement de la pièce
-    const [possibilitiesOfMoves, setPossibilitiesOfMoves] = useState(null);
+    const [possibilitiesOfMoves, setPossibilitiesOfMoves] = useState([]);
     
     for (let i = 0; i < 8; i++) {
         let rowOfPiece = pieces[i];
@@ -50,7 +50,7 @@ function Board(props) {
 
         }else if (selectionState === "selectMove"){
             //pour après avoir selectionner une pièce
-            if (possibilitiesOfMoves !== null && (possibilitiesOfMoves.indexOf(row + '-' + column) !== -1) && piece === '  ') {
+            if (possibilitiesOfMoves.includes(row + '-' + column) && piece === '  ') {
                 //si clique sur une case sans pièce (bouge la pièce)
                 goToDestination(row + '-' + column);
 
@@ -66,7 +66,7 @@ function Board(props) {
                     //si clique sur une case avec une pièce alliée (la selectionne alors)
                     setPieceToMove(pieceHere);
 
-                }else if(possibilitiesOfMoves !== null && (possibilitiesOfMoves.indexOf(row + '-' + column) !== -1)){
+                }else if(possibilitiesOfMoves.includes(row + '-' + column)){
                     //si clique sur une case avec un pièce adverse (la mange)
                     goToDestination(row + '-' + column);
                 }
@@ -78,7 +78,7 @@ function Board(props) {
     function deselectPiece(){
         setPieceSelected(null);
         setSelectionState("selectPiece");
-        setPossibilitiesOfMoves(null);
+        setPossibilitiesOfMoves([]);
     }
 
     //function enregistrant quelle pièce est à déplacer et depuis où
@@ -107,7 +107,7 @@ function Board(props) {
         setPieces(nextPieces);
         setSelectionState("selectPiece");
         setPieceSelected(null);
-        setPossibilitiesOfMoves(null);
+        setPossibilitiesOfMoves([]);
     }
         
     //function pour identifier une pièce et crée l'object quand une pièce est selectionnée
@@ -145,7 +145,7 @@ function Square({position, color, onSquareClick, row, column,identifyPiece, piec
 
     if (pieceSelected !== null && pieceSelected.coordinates === row + '-' + column) {
         squareAspect = "square " + color + " square--selected";
-    }else if (possibilitiesOfMoves !== null && (possibilitiesOfMoves.indexOf(row + '-' + column) !== -1)) {
+    }else if (possibilitiesOfMoves.includes(row + '-' + column)) {
         squareAspect = "square " + color + " square--possibility";
     }else{
         squareAspect = "square " + color;

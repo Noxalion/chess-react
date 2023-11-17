@@ -5,19 +5,19 @@ function findMovement(piece, pieces,identifyPiece){
             return movePawn(piece, pieces);
 
         case "horse":
-            return null;
+            return [];
 
         case "bishop":
-            return null;
+            return [];
 
         case "castle":
-            return null;
+            return [];
 
         case "queen":
-            return null;
+            return [];
 
         case "king":
-            return null;
+            return [];
     
         default:
             break;
@@ -26,7 +26,7 @@ function findMovement(piece, pieces,identifyPiece){
 
     //function pour voir les possibilités de déplacement d'un pion
     function movePawn(piece, pieces){
-        let squareOfPossibilities = [];
+        let possibilitiesOfMoves = [];
         let pieceRow = Number(piece.coordinates.split('-')[0]);
         let pieceColumn = Number(piece.coordinates.split('-')[1]);
 
@@ -36,7 +36,7 @@ function findMovement(piece, pieces,identifyPiece){
                 //s'il n'a pas encore bougé, un pion peut avancer de deux cases
                 for (let i = 1; i < 3; i++) {
                     if (pieces[pieceRow + i][pieceColumn] === "  " && checkIfInBoard(pieceRow + i, pieceColumn)) {
-                        setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, i);
+                        setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, i);
                     }else{
                         i = 3;
                     }
@@ -45,7 +45,7 @@ function findMovement(piece, pieces,identifyPiece){
             }else{
                 //déplacement normal
                 if (pieces[pieceRow + 1][pieceColumn] === "  " && checkIfInBoard(pieceRow + 1, pieceColumn)) {
-                    setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, 1);
+                    setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, 1);
                 }
             }
 
@@ -55,7 +55,7 @@ function findMovement(piece, pieces,identifyPiece){
                 let horizontalToTake = pieceColumn + i;
                 if (pieces[verticalToTake][horizontalToTake] !== "  " && checkIfInBoard(verticalToTake, horizontalToTake)) {
                     if (identifyPiece(pieces[verticalToTake][horizontalToTake], verticalToTake, horizontalToTake).side !== "white") {
-                        setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, 1, i);
+                        setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, 1, i);
                     }
                 }
             }
@@ -65,7 +65,7 @@ function findMovement(piece, pieces,identifyPiece){
                 //s'il n'a pas encore bougé, un pion peut avancer de deux cases
                 for (let i = 1; i < 3; i++) {
                     if (pieces[pieceRow - i][pieceColumn] === "  " && checkIfInBoard(pieceRow - i, pieceColumn)) {
-                        setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, -i);
+                        setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, -i);
                     }else{
                         i = 3;
                     }
@@ -73,7 +73,7 @@ function findMovement(piece, pieces,identifyPiece){
             }else{
                 //déplacement normal
                 if (pieces[pieceRow - 1][pieceColumn] === "  " && checkIfInBoard(pieceRow - 1, pieceColumn)) {
-                    setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, -1); 
+                    setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, -1); 
                 }
             }
 
@@ -83,24 +83,24 @@ function findMovement(piece, pieces,identifyPiece){
                 let horizontalToTake = pieceColumn + i;
                 if (pieces[verticalToTake][horizontalToTake] !== "  " && checkIfInBoard(verticalToTake, horizontalToTake)) {
                     if (identifyPiece(pieces[verticalToTake][horizontalToTake], verticalToTake, horizontalToTake).side !== "black") {
-                        setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, -1, i);
+                        setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, -1, i);
                     }
                 }
             }
         }
         
-        console.log(squareOfPossibilities);
-        return squareOfPossibilities;
+        console.log(possibilitiesOfMoves);
+        return possibilitiesOfMoves;
     }
 
     //function pour set les cases possibles pour les déplacements
-    function setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, verticalMove, horizontalMove = 0){
+    function setPossibilitiesOfMoves(possibilitiesOfMoves, pieceRow, pieceColumn, verticalMove, horizontalMove = 0){
         
         let newVerticalCoordinate = pieceRow + verticalMove;
         let newHorizontalCoordinate = pieceColumn + horizontalMove;
 
         if(checkIfInBoard(newVerticalCoordinate, newHorizontalCoordinate)){
-            squareOfPossibilities.push(newVerticalCoordinate + "-" + newHorizontalCoordinate);
+            possibilitiesOfMoves.push(newVerticalCoordinate + "-" + newHorizontalCoordinate);
         }
     }
 
