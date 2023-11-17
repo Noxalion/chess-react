@@ -1,5 +1,5 @@
 import { useState } from "react";
-import findMovement from './utils/ChessMovement';
+import ChessMoves from './utils/ChessMoves';
 
 //pour former le plateau et ses intéractions
 function Board(props) {
@@ -88,7 +88,7 @@ function Board(props) {
     function setPieceToMove(piece){
         setPieceSelected(piece);
         setSelectionState("selectMove");
-        setPossibilitiesOfMoves(findMovement(piece, pieces, identifyPiece));
+        setPossibilitiesOfMoves(ChessMoves(piece, pieces, identifyPiece));
     }
 
     //function appliquant le déplacement choisi de la pièce

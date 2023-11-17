@@ -1,10 +1,11 @@
-function findMovement(piece, pieces,identifyPiece){
+function ChessMoves(piece, pieces,identifyPiece){
 
     switch (piece.name) {
         case "pawn":
-            return movePawn(piece, pieces);
+            return pawnMoves(piece, pieces);
 
         case "knight":
+            //return moveKnight(piece, pieces);
             return [];
 
         case "bishop":
@@ -25,8 +26,8 @@ function findMovement(piece, pieces,identifyPiece){
 
 
     //function pour voir les possibilités de déplacement d'un pion
-    function movePawn(piece, pieces){
-        let possibilitiesOfMoves = [];
+    function pawnMoves(piece, pieces){
+        let moves = [];
         let pieceRow = Number(piece.coordinates.split('-')[0]);
         let pieceColumn = Number(piece.coordinates.split('-')[1]);
         //ligne de départ d'un pion, dépend dans quel camp il est
@@ -42,24 +43,24 @@ function findMovement(piece, pieces,identifyPiece){
             factorForUpAndDown = -1;
         }
 
-        //s'il n'a pas encore bougé, un pion peut avancer de deux cases et faisant une boucle commençant à 1 et ne comprenant pas le max, je définis à la portée max du pion + 1 
-        let maxRangeForPawnPlus1 = 2;
+        //s'il n'a pas encore bougé, un pion peut avancer de deux cases 
+        let maxRange = 1;
         if (pieceRow === pieceStartingRow) {
-            maxRangeForPawnPlus1 = 3;
+            maxRange = 2;
         }
 
         //la boucle pour gérer la portée du pion
-        for (let i = 1; i < maxRangeForPawnPlus1; i++) {
+        for (let i = 1; i < maxRange + 1; i++) {
             let additionFactor = (i * factorForUpAndDown);
             if (checkIfInBoard(pieceRow + additionFactor, pieceColumn)) {
                 if (pieces[pieceRow + additionFactor][pieceColumn] === "  ") {
                     let possibility = setPossibility(pieceRow, pieceColumn, additionFactor);
                     if (possibility) {
-                        possibilitiesOfMoves.push(possibility);
+                        moves.push(possibility);
                     }
                 }else{
                     //entre ici si le pion rencontre un obstacle
-                    i = maxRangeForPawnPlus1;
+                    break;
                 } 
             }    
         }
@@ -74,15 +75,26 @@ function findMovement(piece, pieces,identifyPiece){
                     if (identifyPiece(pieces[verticalToTake][horizontalToTake], verticalToTake, horizontalToTake).side !== piece.side) {
                         let possibility = setPossibility(pieceRow, pieceColumn, additionFactor, i);
                         if (possibility) {
-                            possibilitiesOfMoves.push(possibility);
+                            moves.push(possibility);
                         }
                     }
                 }
             }
         }
         
-        return possibilitiesOfMoves;
+        return moves;
     }
+
+    //function pour voir les possibilités de déplacement d'un cheval
+    /*function moveKnight(piece, pieces){
+        let moves = [];
+        let pieceRow = Number(piece.coordinates.split('-')[0]);
+        let pieceColumn = Number(piece.coordinates.split('-')[1]);
+
+
+
+        return moves;
+    }*/
 
     //function pour set les cases possibles pour les déplacements
     function setPossibility(pieceRow, pieceColumn, verticalMove, horizontalMove = 0){
@@ -108,4 +120,4 @@ function findMovement(piece, pieces,identifyPiece){
     }
 }
 
-export default findMovement;
+export default ChessMoves;
