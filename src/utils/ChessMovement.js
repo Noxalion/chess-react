@@ -35,19 +35,25 @@ function findMovement(piece, pieces,identifyPiece){
             if (pieceRow === 1) {
                 //s'il n'a pas encore bougé, un pion peut avancer de deux cases
                 for (let i = 1; i < 3; i++) {
-                    setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, i);
+                    if (pieces[pieceRow + i][pieceColumn] === "  " && checkIfInBoard(pieceRow + i, pieceColumn)) {
+                        setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, i);
+                    }else{
+                        i = 3;
+                    }
                 }
                 
             }else{
                 //déplacement normal
-                setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, 1);
+                if (pieces[pieceRow + 1][pieceColumn] === "  " && checkIfInBoard(pieceRow + 1, pieceColumn)) {
+                    setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, 1);
+                }
             }
 
             //pour voir si le pion peut prendre ou pas (prise en diagonale uniquement)
             for (let i = -1; i < 2; i+=2) {
                 let verticalToTake = pieceRow + 1;
                 let horizontalToTake = pieceColumn + i;
-                if (pieces[verticalToTake][horizontalToTake] !== "  " && verticalToTake < 8 && verticalToTake > -1 && horizontalToTake < 8 && horizontalToTake > -1) {
+                if (pieces[verticalToTake][horizontalToTake] !== "  " && checkIfInBoard(verticalToTake, horizontalToTake)) {
                     if (identifyPiece(pieces[verticalToTake][horizontalToTake], verticalToTake, horizontalToTake).side !== "white") {
                         setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, 1, i);
                     }
@@ -58,11 +64,17 @@ function findMovement(piece, pieces,identifyPiece){
             if (pieceRow === 6) {
                 //s'il n'a pas encore bougé, un pion peut avancer de deux cases
                 for (let i = 1; i < 3; i++) {
-                    setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, -i); 
+                    if (pieces[pieceRow - i][pieceColumn] === "  " && checkIfInBoard(pieceRow - i, pieceColumn)) {
+                        setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, -i);
+                    }else{
+                        i = 3;
+                    }
                 }
             }else{
                 //déplacement normal
-                setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, -1); 
+                if (pieces[pieceRow - 1][pieceColumn] === "  " && checkIfInBoard(pieceRow - 1, pieceColumn)) {
+                    setSquareOfPossibilities(squareOfPossibilities, pieceRow, pieceColumn, -1); 
+                }
             }
 
             //pour voir si le pion peut prendre ou pas (prise en diagonale uniquement)
