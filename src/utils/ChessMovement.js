@@ -4,13 +4,13 @@ function findMovement(piece, pieces,identifyPiece){
         case "pawn":
             return movePawn(piece, pieces);
 
-        case "horse":
+        case "knight":
             return [];
 
         case "bishop":
             return [];
 
-        case "castle":
+        case "rook":
             return [];
 
         case "queen":
@@ -81,7 +81,6 @@ function findMovement(piece, pieces,identifyPiece){
             }
         }
         
-        console.log(possibilitiesOfMoves);
         return possibilitiesOfMoves;
     }
 

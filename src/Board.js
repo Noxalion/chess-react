@@ -119,9 +119,9 @@ function Board(props) {
         
         let tableName = {
             p: "pawn",
-            h: "horse",
+            n: "knight",
             b: "bishop",
-            c: "castle",
+            r: "rook",
             q: "queen",
             k: "king"
         };

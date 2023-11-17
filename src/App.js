@@ -5,14 +5,14 @@ import './App.css';
 
 function Game() {
     const [pieces, setPieces] = useState([
-        ['wc', 'wh', 'wb', 'wk', 'wq', 'wb', 'wh', 'wc'],
+        ['wr', 'wn', 'wb', 'wk', 'wq', 'wb', 'wn', 'wr'],
         ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
         ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
         ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
         ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
         ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
         ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-        ['bc', 'bh', 'bb', 'bk', 'bq', 'bb', 'bh', 'bc']
+        ['br', 'bn', 'bb', 'bk', 'bq', 'bb', 'bn', 'br']
     ]);
 
 
