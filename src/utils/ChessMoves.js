@@ -1,4 +1,4 @@
-function ChessMoves(piece, pieces,identifyPiece){
+function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, blackCastlingPossibility){
 
     switch (piece.name) {
         case "pawn":
@@ -14,6 +14,7 @@ function ChessMoves(piece, pieces,identifyPiece){
             return rookMoves(piece, pieces);
 
         case "queen":
+            //les mouvements de la reine sont la fusion entre les mouvements d'une tour et d'un fou donc réunissont les deux dans un seul tableau pour renvoyer tout ça correctement
             let queenMoves = [];
             let diagonalMoves = bishopMoves(piece, pieces);
             let straightMoves = rookMoves(piece, pieces);
@@ -288,7 +289,7 @@ function ChessMoves(piece, pieces,identifyPiece){
 
 
 
-    //function pour voir les possibilités de déplacement d'une tour
+    //function pour voir les possibilités de déplacement d'un roi
     function kingMoves(piece, pieces){
         let moves = [];
         let pieceRow = Number(piece.coordinates.split('-')[0]);
@@ -325,7 +326,7 @@ function ChessMoves(piece, pieces,identifyPiece){
             (0;1)
             (0;-1)
             (-1;0)
-            étant toujours les valeurs à additionner aux coordonnées du cheval pour créer ses mouvements
+            étant toujours les valeurs à additionner aux coordonnées du roi pour créer ses mouvements
             */
 
             let verticalMove = pieceRow + additionFactorX;
@@ -347,6 +348,40 @@ function ChessMoves(piece, pieces,identifyPiece){
                 }
             }
         }
+
+        
+        //pour pouvoir roque
+        let horizontalMove = pieceColumn;
+
+        //la boucle permet de check dans les deux directions, le signe permettant de changer le sens
+        for (let i = -1; i < 2; i+=2) {
+            let incrementToCheckCastling = 0;
+
+            //si i est inférieur à zéro, alors doit vérifier s'il peut roque avec la tour de gauche; si i est supérieur à zéro, alors doit vérifier s'il peut roque avec la tour de droite
+            if ((i < 0 && ((whiteCastlingPossibility.left && piece.side === "white") || (blackCastlingPossibility.left && piece.side === "black"))) || 
+                (i > 0 && ((whiteCastlingPossibility.right && piece.side === "white") || (blackCastlingPossibility.right && piece.side === "black")))) {
+                //check si la première pièce qu'il rencontre est bien une tour
+                do {
+                    incrementToCheckCastling += i;
+                
+                    horizontalMove = pieceColumn + incrementToCheckCastling;
+                
+                    if (checkIfInBoard(pieceRow, horizontalMove)) {
+                        if (pieces[pieceRow][horizontalMove] !== "  ") {
+                            let firstPiece = identifyPiece(pieces[pieceRow][horizontalMove], pieceRow, horizontalMove);
+                            if (firstPiece.side === piece.side && firstPiece.name === "rook") {
+                                let possibility = setPossibility(pieceRow, pieceColumn, 0, incrementToCheckCastling);
+                                if (possibility) {
+                                    moves.push(possibility);
+                                }
+                            }
+                        }
+                    }
+                } while (checkIfInBoard(pieceRow, horizontalMove) && pieces[pieceRow][horizontalMove] === "  ");    
+            }
+                    
+        }
+        
 
         return moves;
     }

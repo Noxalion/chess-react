@@ -15,6 +15,22 @@ function Game() {
         ['br', 'bn', 'bb', 'bk', 'bq', 'bb', 'bn', 'br']
     ]);
 
+    //pour voir si un roque peut avoir lieu ou pas pour les blancs
+    const [whiteCastlingPossibility, setWhiteCastlingPossibility] = useState({
+        //avec la tour à gauche
+        left: true,
+        //avec la tour à droite
+        right: true
+    });
+
+    //pour voir si un roque peut avoir lieu ou pas pour les blancs
+    const [blackCastlingPossibility, setBlackCastlingPossibility] = useState({
+        //avec la tour à gauche
+        left: true,
+        //avec la tour à droite
+        right: true
+    });
+
 
     //le rendu du plateau de jeu
     return (
@@ -40,7 +56,15 @@ function Game() {
                 <li>8</li>
             </ul>
             <ul className="game__el board">
-                <Board pieces={pieces} setPieces={setPieces}/>
+                <Board 
+                    pieces={pieces} 
+                    setPieces={setPieces}
+
+                    whiteCastlingPossibility={whiteCastlingPossibility}
+                    setWhiteCastlingPossibility={setWhiteCastlingPossibility}
+                    blackCastlingPossibility={blackCastlingPossibility}
+                    setBlackCastlingPossibility={setBlackCastlingPossibility}
+                />
             </ul>
         </div>
     );
