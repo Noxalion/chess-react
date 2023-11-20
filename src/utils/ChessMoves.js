@@ -26,7 +26,7 @@ function ChessMoves(piece, pieces,identifyPiece){
             return queenMoves;
 
         case "king":
-            return [];
+            return kingMoves(piece, pieces);
     
         default:
             break;
@@ -225,7 +225,7 @@ function ChessMoves(piece, pieces,identifyPiece){
             let additionFactorX = 0;
             let additionFactorY = 0;
 
-            //permet de changer les signes des valeurs à ajouter sans que ce soit synchrone pour créer toutes les possibilités du fou
+            //permet de changer les signes des valeurs à ajouter sans que ce soit synchrone pour créer toutes les possibilités de la tour
             if (i % 2 === 0) {
                 incrementX = -incrementX;
             }
@@ -283,6 +283,72 @@ function ChessMoves(piece, pieces,identifyPiece){
             }
         } while (checkIfInBoard(verticalMove, horizontalMove) && pieces[verticalMove][horizontalMove] === "  ");
         return tablePossibilities;
+    }
+
+
+
+
+    //function pour voir les possibilités de déplacement d'une tour
+    function kingMoves(piece, pieces){
+        let moves = [];
+        let pieceRow = Number(piece.coordinates.split('-')[0]);
+        let pieceColumn = Number(piece.coordinates.split('-')[1]);
+
+        for (let i = 1; i < 9; i++) {
+            //valeurs des facteurs X et Y additionnés aux coordonnées pour voir les mouvements possibles
+            let additionFactorX = 1;
+            let additionFactorY = 0;
+            
+            //permet de changer la valeur des facteurs pour créer toutes les possibilités du roi
+            if (i === 6 || i === 7) {
+                additionFactorX = 0;
+            }
+            if (i > 1 && i < 8) {
+                additionFactorY = 1;
+            }
+
+            //permet de changer les signes des valeurs à ajouter sans que ce soit synchrone pour créer toutes les possibilités du roi
+            if (i % 2 === 1) {
+                additionFactorY = -additionFactorY;
+            }
+            if (i > 3) {
+                additionFactorX = -additionFactorX;
+            }
+
+            /*
+            les précédents if renvoient ainsi:
+            (1;0)
+            (1;1)
+            (1;-1)
+            (-1;1)
+            (-1;-1)
+            (0;1)
+            (0;-1)
+            (-1;0)
+            étant toujours les valeurs à additionner aux coordonnées du cheval pour créer ses mouvements
+            */
+
+            let verticalMove = pieceRow + additionFactorX;
+            let horizontalMove = pieceColumn + additionFactorY;
+
+            if (checkIfInBoard(verticalMove, horizontalMove)) {
+                //pour si la case est vide
+                if (pieces[verticalMove][horizontalMove] === "  ") {
+                    let possibility = setPossibility(pieceRow, pieceColumn, additionFactorX, additionFactorY);
+                    if (possibility) {
+                        moves.push(possibility);
+                    }
+                //pour si la pièce sur la case n'est pas de la même équipe (pas vérifier en même temps que si la case est vide car risque de causer des problèmes en cherchant à indentifier des pièces sur des cases vides)
+                }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side) {
+                    let possibility = setPossibility(pieceRow, pieceColumn, additionFactorX, additionFactorY);
+                    if (possibility) {
+                        moves.push(possibility);
+                    }
+                }
+            }
+        }
+
+        return moves;
     }
 
 
