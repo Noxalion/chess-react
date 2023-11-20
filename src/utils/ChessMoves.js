@@ -156,9 +156,6 @@ function ChessMoves(piece, pieces,identifyPiece){
         let pieceRow = Number(piece.coordinates.split('-')[0]);
         let pieceColumn = Number(piece.coordinates.split('-')[1]);
 
-        let verticalMove = pieceRow;
-        let horizontalMove = pieceColumn;
-
         for (let i = 1; i < 5; i++) {
             //valeurs de l'incrémentation pour les déplacements en X et Y
             let incrementX = 1;
@@ -176,45 +173,23 @@ function ChessMoves(piece, pieces,identifyPiece){
                 incrementY = -incrementY;
             }
 
-            //boucle do while car on vérifie forcément une fois dans chaque direction des diagonales et on s'arrête sur une diagonale dès qu'on rencontre quelque chose
-            do {
-                //valeurs des facteurs X et Y additionnés aux coordonnées pour voir les mouvements possibles
-                additionFactorX += incrementX;
-                additionFactorY += incrementY;
-
-                //valeurs des facteurs X et Y additionnés aux coordonnées pour voir les mouvements possibles
-                verticalMove = pieceRow + additionFactorX;
-                horizontalMove = pieceColumn + additionFactorY;
-
-                if (checkIfInBoard(verticalMove, horizontalMove)) {
-                    //pour si la case est vide
-                    if (pieces[verticalMove][horizontalMove] === "  ") {
-                        let possibility = setPossibility(pieceRow, pieceColumn, additionFactorX, additionFactorY);
-                        if (possibility) {
-                            moves.push(possibility);
-                        }
-                    //pour si la pièce sur la case n'est pas de la même équipe (pas vérifier en même temps que si la case est vide car risque de causer des problèmes en cherchant à indentifier des pièces sur des cases vides)
-                    }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side) {
-                        let possibility = setPossibility(pieceRow, pieceColumn, additionFactorX, additionFactorY);
-                        if (possibility) {
-                            moves.push(possibility);
-                        }
-                    }
+            //créer un tableau des possibilités et les enregistres dans moves s'il y en a
+            let tablePossibilities = wholeLineCheck(additionFactorX, additionFactorY, incrementX, incrementY, pieceRow, pieceColumn);
+            if (tablePossibilities) {
+                for (let i = 0; i < tablePossibilities.length; i++) {
+                    moves.push(tablePossibilities[i]);                    
                 }
-            } while (checkIfInBoard(verticalMove, horizontalMove) && pieces[verticalMove][horizontalMove] === "  ");
+            }
         }
 
         return moves;
     }
 
-    //function pour voir les possibilités de déplacement d'un fou
+    //function pour voir les possibilités de déplacement d'une tour
     function rookMoves(piece, pieces){
         let moves = [];
         let pieceRow = Number(piece.coordinates.split('-')[0]);
         let pieceColumn = Number(piece.coordinates.split('-')[1]);
-
-        let verticalMove = pieceRow;
-        let horizontalMove = pieceColumn;
 
         for (let i = 1; i < 5; i++) {
             //valeurs de l'incrémentation pour les déplacements en X et Y
@@ -240,35 +215,53 @@ function ChessMoves(piece, pieces,identifyPiece){
                 incrementY = -incrementY;
             }
 
-            //boucle do while car on vérifie forcément une fois dans chaque direction des diagonales et on s'arrête sur une diagonale dès qu'on rencontre quelque chose
-            do {
-                //valeurs des facteurs X et Y additionnés aux coordonnées pour voir les mouvements possibles
-                additionFactorX += incrementX;
-                additionFactorY += incrementY;
-
-                //valeurs des facteurs X et Y additionnés aux coordonnées pour voir les mouvements possibles
-                verticalMove = pieceRow + additionFactorX;
-                horizontalMove = pieceColumn + additionFactorY;
-
-                if (checkIfInBoard(verticalMove, horizontalMove)) {
-                    //pour si la case est vide
-                    if (pieces[verticalMove][horizontalMove] === "  ") {
-                        let possibility = setPossibility(pieceRow, pieceColumn, additionFactorX, additionFactorY);
-                        if (possibility) {
-                            moves.push(possibility);
-                        }
-                    //pour si la pièce sur la case n'est pas de la même équipe (pas vérifier en même temps que si la case est vide car risque de causer des problèmes en cherchant à indentifier des pièces sur des cases vides)
-                    }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side) {
-                        let possibility = setPossibility(pieceRow, pieceColumn, additionFactorX, additionFactorY);
-                        if (possibility) {
-                            moves.push(possibility);
-                        }
-                    }
+            //créer un tableau des possibilités et les enregistres dans moves s'il y en a
+            let tablePossibilities = wholeLineCheck(additionFactorX, additionFactorY, incrementX, incrementY, pieceRow, pieceColumn);
+            if (tablePossibilities) {
+                for (let i = 0; i < tablePossibilities.length; i++) {
+                    moves.push(tablePossibilities[i]);                    
                 }
-            } while (checkIfInBoard(verticalMove, horizontalMove) && pieces[verticalMove][horizontalMove] === "  ");
+            }
         }
 
         return moves;
+    }
+
+    //function pour checker une ligne (diagonale, verticale ou horizontale) dans une direction, enregistrant un tableau s'arrêtant au moment où il n'est plus possible pour la pièce de se déplacer dans cette direction
+    function wholeLineCheck(additionFactorX, additionFactorY, incrementX, incrementY, pieceRow, pieceColumn){
+        //enregistre un tableau de possibilités
+        let tablePossibilities = [];
+
+        let verticalMove = pieceRow;
+        let horizontalMove = pieceColumn;
+        //boucle do while car on vérifie forcément une fois dans chaque direction des diagonales et on s'arrête sur une diagonale dès qu'on rencontre quelque chose
+        do {
+            //valeurs des facteurs X et Y additionnés aux coordonnées pour voir les mouvements possibles
+            additionFactorX += incrementX;
+            additionFactorY += incrementY;
+        
+            //valeurs des facteurs X et Y additionnés aux coordonnées pour voir les mouvements possibles
+            verticalMove = pieceRow + additionFactorX;
+            horizontalMove = pieceColumn + additionFactorY;
+        
+            if (checkIfInBoard(verticalMove, horizontalMove)) {
+                //pour si la case est vide
+                if (pieces[verticalMove][horizontalMove] === "  ") {
+                    let possibility = setPossibility(pieceRow, pieceColumn, additionFactorX, additionFactorY);
+                    if (possibility) {
+                        tablePossibilities.push(possibility);
+                    }
+                    
+                //pour si la pièce sur la case n'est pas de la même équipe (pas vérifier en même temps que si la case est vide car risque de causer des problèmes en cherchant à indentifier des pièces sur des cases vides)
+                }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side) {
+                    let possibility = setPossibility(pieceRow, pieceColumn, additionFactorX, additionFactorY);
+                    if (possibility) {
+                        tablePossibilities.push(possibility);
+                    }
+                }
+            }
+        } while (checkIfInBoard(verticalMove, horizontalMove) && pieces[verticalMove][horizontalMove] === "  ");
+        return tablePossibilities;
     }
 
 
