@@ -5,8 +5,7 @@ function ChessMoves(piece, pieces,identifyPiece){
             return pawnMoves(piece, pieces);
 
         case "knight":
-            //return moveKnight(piece, pieces);
-            return [];
+            return knightMoves(piece, pieces);
 
         case "bishop":
             return [];
@@ -86,15 +85,59 @@ function ChessMoves(piece, pieces,identifyPiece){
     }
 
     //function pour voir les possibilités de déplacement d'un cheval
-    /*function moveKnight(piece, pieces){
+    function knightMoves(piece, pieces){
         let moves = [];
         let pieceRow = Number(piece.coordinates.split('-')[0]);
         let pieceColumn = Number(piece.coordinates.split('-')[1]);
 
+        for (let g = 0; g < 3; g++) {
+            for (let h = -1; h < 2; h+=2) {
+                for (let i = 1; i < 3; i++) {
+                    for (let j = 1; j < 3; j++) {
+                        //ajoute forcément 1 ou 2 à une des coordonnées
+                        if (i !== j) {
+                            //condition car les ajouts aux coordonnées X et Y du cheval ne sont jamais miroir
+                            let moveRow = i;
+                            let moveColumn = j;
+                            
+                            if (g === 0) {
+                                //pour quand seul le X peut être négatif
+                                moveRow = i * h;
+                            }else if(g === 1){
+                                //pour quand seul le Y peut être négatif
+                                moveColumn = j * h;
+                            }else{
+                                //pour quand les deux peuvent être négatif
+                                moveRow = i * h;
+                                moveColumn = j * h;
+                            }
+                            let verticalMove = pieceRow + moveRow;
+                            let horizontalMove = pieceColumn + moveColumn;
 
+                            if (checkIfInBoard(verticalMove, horizontalMove)) {
+                                if (pieces[verticalMove][horizontalMove] === "  ") {
+                                    //vérifie si la case est vide
+                                    let possibility = setPossibility(pieceRow, pieceColumn, moveRow, moveColumn);
+                                    if (possibility) {
+                                        moves.push(possibility);
+                                    }
+                                }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side) {
+                                    //vérifie si la pièce est de la même équipe (pas fait en même temps que si la case est vide car risque de causer des problèmes en cherchant des pièces sur des cases vides)
+                                    let possibility = setPossibility(pieceRow, pieceColumn, moveRow, moveColumn);
+                                    if (possibility) {
+                                        moves.push(possibility);
+                                    }
+                                }
+                            } 
+                        }
+                    }
+                }
+            }
+        }
+        
 
         return moves;
-    }*/
+    }
 
     //function pour set les cases possibles pour les déplacements
     function setPossibility(pieceRow, pieceColumn, verticalMove, horizontalMove = 0){
