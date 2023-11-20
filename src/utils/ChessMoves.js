@@ -90,51 +90,60 @@ function ChessMoves(piece, pieces,identifyPiece){
         let pieceRow = Number(piece.coordinates.split('-')[0]);
         let pieceColumn = Number(piece.coordinates.split('-')[1]);
 
-        for (let g = 0; g < 3; g++) {
-            for (let h = -1; h < 2; h+=2) {
-                for (let i = 1; i < 3; i++) {
-                    for (let j = 1; j < 3; j++) {
-                        //ajoute forcément 1 ou 2 à une des coordonnées
-                        if (i !== j) {
-                            //condition car les ajouts aux coordonnées X et Y du cheval ne sont jamais miroir
-                            let moveRow = i;
-                            let moveColumn = j;
-                            
-                            if (g === 0) {
-                                //pour quand seul le X peut être négatif
-                                moveRow = i * h;
-                            }else if(g === 1){
-                                //pour quand seul le Y peut être négatif
-                                moveColumn = j * h;
-                            }else{
-                                //pour quand les deux peuvent être négatif
-                                moveRow = i * h;
-                                moveColumn = j * h;
-                            }
-                            let verticalMove = pieceRow + moveRow;
-                            let horizontalMove = pieceColumn + moveColumn;
+        let signX = 1;
+        let signY = 1;
+        let additionFactorX = 1;
+        let additionFactorY = 2;
 
-                            if (checkIfInBoard(verticalMove, horizontalMove)) {
-                                if (pieces[verticalMove][horizontalMove] === "  ") {
-                                    //vérifie si la case est vide
-                                    let possibility = setPossibility(pieceRow, pieceColumn, moveRow, moveColumn);
-                                    if (possibility) {
-                                        moves.push(possibility);
-                                    }
-                                }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side) {
-                                    //vérifie si la pièce est de la même équipe (pas fait en même temps que si la case est vide car risque de causer des problèmes en cherchant des pièces sur des cases vides)
-                                    let possibility = setPossibility(pieceRow, pieceColumn, moveRow, moveColumn);
-                                    if (possibility) {
-                                        moves.push(possibility);
-                                    }
-                                }
-                            } 
-                        }
+        //boucle pour créer les huit coordonnées possibles du cheval
+        for (let g = 1; g < 9; g++) {
+            //arrivé à la moitié de la boucle, inverse les valeurs à ajouter aux coordonnées
+            if (g > 4) {
+                additionFactorX = 2;
+                additionFactorY = 1;
+            }
+
+            //permet de changer les signes des valeurs à ajouter sans que ce soit synchrone pour créer toutes les possibilités du cheval
+            if (g % 2 === 0) {
+                signX = -signX;
+            }
+            if (g % 2 === 1 && g > 1) {
+                signY = -signY;
+            }
+
+            /*
+            les précédents if renvoient ainsi:
+            (1;2)
+            (-1;2)
+            (-1;-2)
+            (1;-2)
+            (2;1)
+            (-2;1)
+            (-2;-1)
+            (2;-1)
+            étant toujours les valeurs à additionner aux coordonnées du cheval pour créer ses mouvements
+            */
+
+            let verticalMove = pieceRow + (additionFactorX * signX);
+            let horizontalMove = pieceColumn + (additionFactorY * signY);
+
+            console.log(additionFactorX * signX + ';' + additionFactorY * signY);
+            if (checkIfInBoard(verticalMove, horizontalMove)) {
+                //pour si la case est vide
+                if (pieces[verticalMove][horizontalMove] === "  ") {
+                    let possibility = setPossibility(pieceRow, pieceColumn, (additionFactorX * signX), (additionFactorY * signY));
+                    if (possibility) {
+                        moves.push(possibility);
+                    }
+                //pour si la pièce sur la case n'est pas de la même équipe (pas fait en même temps que si la case est vide car risque de causer des problèmes en cherchant des pièces sur des cases vides)
+                }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side) {
+                    let possibility = setPossibility(pieceRow, pieceColumn, (additionFactorX * signX), (additionFactorY * signY));
+                    if (possibility) {
+                        moves.push(possibility);
                     }
                 }
             }
         }
-        
 
         return moves;
     }
