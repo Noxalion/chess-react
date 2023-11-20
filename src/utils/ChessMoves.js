@@ -8,7 +8,7 @@ function ChessMoves(piece, pieces,identifyPiece){
             return knightMoves(piece, pieces);
 
         case "bishop":
-            return [];
+            return bishopMoves(piece, pieces);
 
         case "rook":
             return [];
@@ -90,8 +90,11 @@ function ChessMoves(piece, pieces,identifyPiece){
         let pieceRow = Number(piece.coordinates.split('-')[0]);
         let pieceColumn = Number(piece.coordinates.split('-')[1]);
 
+        //signes des facteurs X et Y
         let signX = 1;
         let signY = 1;
+
+        //valeurs des facteurs X et Y additionnés aux coordonnées pour voir les mouvements possibles
         let additionFactorX = 1;
         let additionFactorY = 2;
 
@@ -127,7 +130,6 @@ function ChessMoves(piece, pieces,identifyPiece){
             let verticalMove = pieceRow + (additionFactorX * signX);
             let horizontalMove = pieceColumn + (additionFactorY * signY);
 
-            console.log(additionFactorX * signX + ';' + additionFactorY * signY);
             if (checkIfInBoard(verticalMove, horizontalMove)) {
                 //pour si la case est vide
                 if (pieces[verticalMove][horizontalMove] === "  ") {
@@ -135,7 +137,7 @@ function ChessMoves(piece, pieces,identifyPiece){
                     if (possibility) {
                         moves.push(possibility);
                     }
-                //pour si la pièce sur la case n'est pas de la même équipe (pas fait en même temps que si la case est vide car risque de causer des problèmes en cherchant des pièces sur des cases vides)
+                //pour si la pièce sur la case n'est pas de la même équipe (pas vérifier en même temps que si la case est vide car risque de causer des problèmes en cherchant à indentifier des pièces sur des cases vides)
                 }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side) {
                     let possibility = setPossibility(pieceRow, pieceColumn, (additionFactorX * signX), (additionFactorY * signY));
                     if (possibility) {
@@ -147,6 +149,64 @@ function ChessMoves(piece, pieces,identifyPiece){
 
         return moves;
     }
+
+    //function pour voir les possibilités de déplacement d'un fou
+    function bishopMoves(piece, pieces){
+        let moves = [];
+        let pieceRow = Number(piece.coordinates.split('-')[0]);
+        let pieceColumn = Number(piece.coordinates.split('-')[1]);
+
+        let verticalMove = pieceRow;
+        let horizontalMove = pieceColumn;
+
+        for (let i = 1; i < 5; i++) {
+            //valeurs de l'incrémentation pour les déplacements en X et Y
+            let incrementX = 1;
+            let incrementY = 1;
+    
+            //valeurs des facteurs X et Y additionnés aux coordonnées pour voir les mouvements possibles
+            let additionFactorX = 0;
+            let additionFactorY = 0;
+
+            //permet de changer les signes des valeurs à ajouter sans que ce soit synchrone pour créer toutes les possibilités du fou
+            if (i % 2 === 0) {
+                incrementX = -incrementX;
+            }
+            if (i % 3 === 1) {
+                incrementY = -incrementY;
+            }
+
+            //boucle do while car on vérifie forcément une fois dans chaque direction des diagonales et on s'arrête sur une diagonale dès qu'on rencontre quelque chose
+            do {
+                //valeurs des facteurs X et Y additionnés aux coordonnées pour voir les mouvements possibles
+                additionFactorX += incrementX;
+                additionFactorY += incrementY;
+
+                //valeurs des facteurs X et Y additionnés aux coordonnées pour voir les mouvements possibles
+                verticalMove = pieceRow + additionFactorX;
+                horizontalMove = pieceColumn + additionFactorY;
+
+                if (checkIfInBoard(verticalMove, horizontalMove)) {
+                    //pour si la case est vide
+                    if (pieces[verticalMove][horizontalMove] === "  ") {
+                        let possibility = setPossibility(pieceRow, pieceColumn, additionFactorX, additionFactorY);
+                        if (possibility) {
+                            moves.push(possibility);
+                        }
+                    //pour si la pièce sur la case n'est pas de la même équipe (pas vérifier en même temps que si la case est vide car risque de causer des problèmes en cherchant à indentifier des pièces sur des cases vides)
+                    }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side) {
+                        let possibility = setPossibility(pieceRow, pieceColumn, additionFactorX, additionFactorY);
+                        if (possibility) {
+                            moves.push(possibility);
+                        }
+                    }
+                }
+            } while (checkIfInBoard(verticalMove, horizontalMove) && pieces[verticalMove][horizontalMove] === "  ");
+        }
+
+        return moves;
+    }
+
 
     //function pour set les cases possibles pour les déplacements
     function setPossibility(pieceRow, pieceColumn, verticalMove, horizontalMove = 0){
