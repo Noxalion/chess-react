@@ -14,7 +14,16 @@ function ChessMoves(piece, pieces,identifyPiece){
             return rookMoves(piece, pieces);
 
         case "queen":
-            return [];
+            let queenMoves = [];
+            let diagonalMoves = bishopMoves(piece, pieces);
+            let straightMoves = rookMoves(piece, pieces);
+            for (let i = 0; i < diagonalMoves.length; i++) {
+                queenMoves.push(diagonalMoves[i]); 
+            }
+            for (let i = 0; i < straightMoves.length; i++) {
+                queenMoves.push(straightMoves[i]); 
+            }
+            return queenMoves;
 
         case "king":
             return [];
@@ -84,6 +93,9 @@ function ChessMoves(piece, pieces,identifyPiece){
         return moves;
     }
 
+
+
+
     //function pour voir les possibilités de déplacement d'un cheval
     function knightMoves(piece, pieces){
         let moves = [];
@@ -150,6 +162,9 @@ function ChessMoves(piece, pieces,identifyPiece){
         return moves;
     }
 
+
+
+
     //function pour voir les possibilités de déplacement d'un fou
     function bishopMoves(piece, pieces){
         let moves = [];
@@ -184,6 +199,9 @@ function ChessMoves(piece, pieces,identifyPiece){
 
         return moves;
     }
+
+
+
 
     //function pour voir les possibilités de déplacement d'une tour
     function rookMoves(piece, pieces){
@@ -227,6 +245,9 @@ function ChessMoves(piece, pieces,identifyPiece){
         return moves;
     }
 
+
+
+
     //function pour checker une ligne (diagonale, verticale ou horizontale) dans une direction, enregistrant un tableau s'arrêtant au moment où il n'est plus possible pour la pièce de se déplacer dans cette direction
     function wholeLineCheck(additionFactorX, additionFactorY, incrementX, incrementY, pieceRow, pieceColumn){
         //enregistre un tableau de possibilités
@@ -234,13 +255,13 @@ function ChessMoves(piece, pieces,identifyPiece){
 
         let verticalMove = pieceRow;
         let horizontalMove = pieceColumn;
-        //boucle do while car on vérifie forcément une fois dans chaque direction des diagonales et on s'arrête sur une diagonale dès qu'on rencontre quelque chose
+        //boucle do while car on vérifie forcément une fois dans la direction et on s'arrête dès qu'on rencontre quelque chose
         do {
             //valeurs des facteurs X et Y additionnés aux coordonnées pour voir les mouvements possibles
             additionFactorX += incrementX;
             additionFactorY += incrementY;
         
-            //valeurs des facteurs X et Y additionnés aux coordonnées pour voir les mouvements possibles
+            //valeurs des coordonnées X et Y des mouvements possibles
             verticalMove = pieceRow + additionFactorX;
             horizontalMove = pieceColumn + additionFactorY;
         
@@ -265,6 +286,8 @@ function ChessMoves(piece, pieces,identifyPiece){
     }
 
 
+
+
     //function pour set les cases possibles pour les déplacements
     function setPossibility(pieceRow, pieceColumn, verticalMove, horizontalMove = 0){
         
@@ -277,6 +300,9 @@ function ChessMoves(piece, pieces,identifyPiece){
             return null;
         }
     }
+
+
+
 
     //function pour check si les données sont toujours dans les coordonnées possibles du plateau
     function checkIfInBoard(rowCoordinate, columnCoordinate){
