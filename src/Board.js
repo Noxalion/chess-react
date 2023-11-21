@@ -4,7 +4,17 @@ import ChessMoves from './utils/ChessMoves';
 //pour former le plateau et ses intéractions
 function Board(props) {
     //réattribut les props définis dans Game
-    let {pieces, setPieces, whiteCastlingPossibility, setWhiteCastlingPossibility, blackCastlingPossibility, setBlackCastlingPossibility} = props;
+    let {
+        pieces, 
+        setPieces, 
+        whiteCastlingPossibility, 
+        setWhiteCastlingPossibility, 
+        blackCastlingPossibility, 
+        setBlackCastlingPossibility, 
+        whiteAttack,
+        setWhiteAttack,
+        blackAttack,
+        setBlackAttack} = props;
     
     let squares = [];
     let squareColor;
@@ -100,7 +110,7 @@ function Board(props) {
     function setPieceToMove(piece){
         setPieceSelected(piece);
         setSelectionState("selectMove");
-        setPossibilitiesOfMoves(ChessMoves(piece, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility));
+        setPossibilitiesOfMoves(ChessMoves(piece, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack));
     }
 
     //function appliquant le déplacement choisi de la pièce
@@ -158,6 +168,7 @@ function Board(props) {
             }
         }
 
+        //copie du tableau de jeu et update de la copie selon l'action du joueur
         const nextPieces = pieces.slice();
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
@@ -169,10 +180,17 @@ function Board(props) {
         nextPieces[startingCoordinates[0]][startingCoordinates[1]] = "  ";
         nextPieces[finishCoordinates[0]][finishCoordinates[1]] = squareOfStart;
 
+        //update du tableau de jeu et reset des paramètres de selection (pour pouvoir rechoisir une pièce)
         setPieces(nextPieces);
         setSelectionState("selectPiece");
         setPieceSelected(null);
         setPossibilitiesOfMoves([]);
+        updateAttack();
+
+        console.log("Tableau d'attaques des blancs");
+        console.log(whiteAttack);
+        console.log("Tableau d'attaques des noirs");
+        console.log(blackAttack);
     }
 
     //function appliquant le déplacement choisi de la pièce
@@ -223,6 +241,7 @@ function Board(props) {
         setSelectionState("selectPiece");
         setPieceSelected(null);
         setPossibilitiesOfMoves([]);
+        updateAttack();
     }
         
     //function pour identifier une pièce et crée l'object quand une pièce est selectionnée
@@ -248,6 +267,62 @@ function Board(props) {
         };
     
         return pieceInfo;
+    }
+
+    //function pour update les tableaux d'attaques de chaque équipe
+    function updateAttack(){
+        //copie du tableau des cases attaqués par chaque camp
+        const nextWhiteAttack = whiteAttack.slice();
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                nextWhiteAttack[i][j].slice();
+            }
+        }
+        const nextBlackAttack = blackAttack.slice();
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                nextBlackAttack[i][j].slice();
+            }
+        }
+
+        //reset les copies des tableaux pour être sûr de ne pas avoir une case attaquée alors que ce n'est pas le cas
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                nextWhiteAttack[i][j] = " ";
+                nextBlackAttack[i][j] = " ";
+            }
+        }
+
+        //place une croix dans la case du tableau à chaque endroit où une case est attaquée
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                if (pieces[i][j] !== "  ") {
+                    let pieceThere = identifyPiece(pieces[i][j], i, j);
+                    let attackPossibility = ChessMoves(pieceThere, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, "onlyAttack");
+
+                    if (pieceThere.side === "white") {
+                        for (let i = 0; i < attackPossibility.length; i++) {
+                            let attackRow = Number(attackPossibility[i].split('-')[0]);
+                            let attackColumn = Number(attackPossibility[i].split('-')[1]);
+
+                            nextWhiteAttack[attackRow][attackColumn] = "x";
+                        }
+                
+                        setWhiteAttack(nextWhiteAttack);
+                        
+                    }else if (pieceThere.side === "black") {
+                        for (let i = 0; i < attackPossibility.length; i++) {
+                            let attackRow = Number(attackPossibility[i].split('-')[0]);
+                            let attackColumn = Number(attackPossibility[i].split('-')[1]);
+
+                            nextBlackAttack[attackRow][attackColumn] = "x";
+                        }
+                
+                        setBlackAttack(nextBlackAttack);
+                    }
+                }                
+            }
+        }        
     }
     
     return squares;

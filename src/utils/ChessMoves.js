@@ -1,33 +1,26 @@
-function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, blackCastlingPossibility){
+function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whatToCheck = "MoveAndAttack"){
 
     switch (piece.name) {
         case "pawn":
-            return pawnMoves(piece, pieces);
+            return pawnMoves();
 
         case "knight":
-            return knightMoves(piece, pieces);
+            return knightMoves();
 
         case "bishop":
-            return bishopMoves(piece, pieces);
+            return bishopMoves();
 
         case "rook":
-            return rookMoves(piece, pieces);
+            return rookMoves();
 
         case "queen":
             //les mouvements de la reine sont la fusion entre les mouvements d'une tour et d'un fou donc réunissont les deux dans un seul tableau pour renvoyer tout ça correctement
-            let queenMoves = [];
-            let diagonalMoves = bishopMoves(piece, pieces);
-            let straightMoves = rookMoves(piece, pieces);
-            for (let i = 0; i < diagonalMoves.length; i++) {
-                queenMoves.push(diagonalMoves[i]); 
-            }
-            for (let i = 0; i < straightMoves.length; i++) {
-                queenMoves.push(straightMoves[i]); 
-            }
-            return queenMoves;
+            let diagonalMoves = bishopMoves();
+            let straightMoves = rookMoves();
+            return diagonalMoves.concat(straightMoves);
 
         case "king":
-            return kingMoves(piece, pieces);
+            return kingMoves();
     
         default:
             break;
@@ -35,10 +28,11 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
 
 
     //function pour voir les possibilités de déplacement d'un pion
-    function pawnMoves(piece, pieces){
+    function pawnMoves(){
         let moves = [];
         let pieceRow = Number(piece.coordinates.split('-')[0]);
         let pieceColumn = Number(piece.coordinates.split('-')[1]);
+
         //ligne de départ d'un pion, dépend dans quel camp il est
         let pieceStartingRow;
         //facteur pour gérer la direction du pion, -1 pour aller vers le haut, 1 pour aller vers le bas
@@ -58,20 +52,22 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
             maxRange = 2;
         }
 
-        //la boucle pour gérer la portée du pion
-        for (let i = 1; i < maxRange + 1; i++) {
-            let additionFactor = (i * factorForUpAndDown);
-            if (checkIfInBoard(pieceRow + additionFactor, pieceColumn)) {
-                if (pieces[pieceRow + additionFactor][pieceColumn] === "  ") {
-                    let possibility = setPossibility(pieceRow, pieceColumn, additionFactor);
-                    if (possibility) {
-                        moves.push(possibility);
-                    }
-                }else{
-                    //entre ici si le pion rencontre un obstacle
-                    break;
-                } 
-            }    
+        if (whatToCheck === "MoveAndAttack") {
+            //la boucle pour gérer la portée du pion
+            for (let i = 1; i < maxRange + 1; i++) {
+                let additionFactor = (i * factorForUpAndDown);
+                if (checkIfInBoard(pieceRow + additionFactor, pieceColumn)) {
+                    if (pieces[pieceRow + additionFactor][pieceColumn] === "  ") {
+                        let possibility = setPossibility(pieceRow, pieceColumn, additionFactor);
+                        if (possibility) {
+                            moves.push(possibility);
+                        }
+                    }else{
+                        //entre ici si le pion rencontre un obstacle
+                        break;
+                    } 
+                }    
+            }
         }
 
         //pour voir si le pion peut prendre ou pas (prise en diagonale uniquement)
@@ -81,11 +77,16 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
             let horizontalToTake = pieceColumn + i;
             if (checkIfInBoard(verticalToTake, horizontalToTake)) {
                 if (pieces[verticalToTake][horizontalToTake] !== "  ") {
-                    if (identifyPiece(pieces[verticalToTake][horizontalToTake], verticalToTake, horizontalToTake).side !== piece.side) {
+                    if (identifyPiece(pieces[verticalToTake][horizontalToTake], verticalToTake, horizontalToTake).side !== piece.side || whatToCheck === "onlyAttack") {
                         let possibility = setPossibility(pieceRow, pieceColumn, additionFactor, i);
                         if (possibility) {
                             moves.push(possibility);
                         }
+                    }
+                }else if(pieces[verticalToTake][horizontalToTake] === "  " && whatToCheck === "onlyAttack"){
+                    let possibility = setPossibility(pieceRow, pieceColumn, additionFactor, i);
+                    if (possibility) {
+                        moves.push(possibility);
                     }
                 }
             }
@@ -98,7 +99,7 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
 
 
     //function pour voir les possibilités de déplacement d'un cheval
-    function knightMoves(piece, pieces){
+    function knightMoves(){
         let moves = [];
         let pieceRow = Number(piece.coordinates.split('-')[0]);
         let pieceColumn = Number(piece.coordinates.split('-')[1]);
@@ -151,7 +152,7 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
                         moves.push(possibility);
                     }
                 //pour si la pièce sur la case n'est pas de la même équipe (pas vérifier en même temps que si la case est vide car risque de causer des problèmes en cherchant à indentifier des pièces sur des cases vides)
-                }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side) {
+                }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side || whatToCheck === "onlyAttack") {
                     let possibility = setPossibility(pieceRow, pieceColumn, (additionFactorX * signX), (additionFactorY * signY));
                     if (possibility) {
                         moves.push(possibility);
@@ -167,7 +168,7 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
 
 
     //function pour voir les possibilités de déplacement d'un fou
-    function bishopMoves(piece, pieces){
+    function bishopMoves(){
         let moves = [];
         let pieceRow = Number(piece.coordinates.split('-')[0]);
         let pieceColumn = Number(piece.coordinates.split('-')[1]);
@@ -190,7 +191,7 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
             }
 
             //créer un tableau des possibilités et les enregistres dans moves s'il y en a
-            let tablePossibilities = wholeLineCheck(additionFactorX, additionFactorY, incrementX, incrementY, pieceRow, pieceColumn);
+            let tablePossibilities = wholeLineCheck(additionFactorX, additionFactorY, incrementX, incrementY, pieceRow, pieceColumn, whatToCheck);
             if (tablePossibilities) {
                 for (let i = 0; i < tablePossibilities.length; i++) {
                     moves.push(tablePossibilities[i]);                    
@@ -205,7 +206,7 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
 
 
     //function pour voir les possibilités de déplacement d'une tour
-    function rookMoves(piece, pieces){
+    function rookMoves(){
         let moves = [];
         let pieceRow = Number(piece.coordinates.split('-')[0]);
         let pieceColumn = Number(piece.coordinates.split('-')[1]);
@@ -235,7 +236,7 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
             }
 
             //créer un tableau des possibilités et les enregistres dans moves s'il y en a
-            let tablePossibilities = wholeLineCheck(additionFactorX, additionFactorY, incrementX, incrementY, pieceRow, pieceColumn);
+            let tablePossibilities = wholeLineCheck(additionFactorX, additionFactorY, incrementX, incrementY, pieceRow, pieceColumn, whatToCheck);
             if (tablePossibilities) {
                 for (let i = 0; i < tablePossibilities.length; i++) {
                     moves.push(tablePossibilities[i]);                    
@@ -250,7 +251,7 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
 
 
     //function pour checker une ligne (diagonale, verticale ou horizontale) dans une direction, enregistrant un tableau s'arrêtant au moment où il n'est plus possible pour la pièce de se déplacer dans cette direction
-    function wholeLineCheck(additionFactorX, additionFactorY, incrementX, incrementY, pieceRow, pieceColumn){
+    function wholeLineCheck(additionFactorX, additionFactorY, incrementX, incrementY, pieceRow, pieceColumn, whatToCheck){
         //enregistre un tableau de possibilités
         let tablePossibilities = [];
 
@@ -275,7 +276,7 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
                     }
                     
                 //pour si la pièce sur la case n'est pas de la même équipe (pas vérifier en même temps que si la case est vide car risque de causer des problèmes en cherchant à indentifier des pièces sur des cases vides)
-                }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side) {
+                }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side || whatToCheck === "onlyAttack") {
                     let possibility = setPossibility(pieceRow, pieceColumn, additionFactorX, additionFactorY);
                     if (possibility) {
                         tablePossibilities.push(possibility);
@@ -290,7 +291,7 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
 
 
     //function pour voir les possibilités de déplacement d'un roi
-    function kingMoves(piece, pieces){
+    function kingMoves(){
         let moves = [];
         let pieceRow = Number(piece.coordinates.split('-')[0]);
         let pieceColumn = Number(piece.coordinates.split('-')[1]);
@@ -332,7 +333,7 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
             let verticalMove = pieceRow + additionFactorX;
             let horizontalMove = pieceColumn + additionFactorY;
 
-            if (checkIfInBoard(verticalMove, horizontalMove)) {
+            if (checkIfInBoard(verticalMove, horizontalMove) && ((piece.side === "white" && blackAttack[verticalMove][horizontalMove] !== 'x') || (piece.side === "black" && whiteAttack[verticalMove][horizontalMove] !== 'x'))) {
                 //pour si la case est vide
                 if (pieces[verticalMove][horizontalMove] === "  ") {
                     let possibility = setPossibility(pieceRow, pieceColumn, additionFactorX, additionFactorY);
@@ -340,7 +341,7 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
                         moves.push(possibility);
                     }
                 //pour si la pièce sur la case n'est pas de la même équipe (pas vérifier en même temps que si la case est vide car risque de causer des problèmes en cherchant à indentifier des pièces sur des cases vides)
-                }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side) {
+                }else if (identifyPiece(pieces[verticalMove][horizontalMove], verticalMove, horizontalMove).side !== piece.side || whatToCheck === "onlyAttack") {
                     let possibility = setPossibility(pieceRow, pieceColumn, additionFactorX, additionFactorY);
                     if (possibility) {
                         moves.push(possibility);
@@ -350,38 +351,40 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
         }
 
         
-        //pour pouvoir roque
-        let horizontalMove = pieceColumn;
-
-        //la boucle permet de check dans les deux directions, le signe permettant de changer le sens
-        for (let i = -1; i < 2; i+=2) {
-            let incrementToCheckCastling = 0;
-
-            //si i est inférieur à zéro, alors doit vérifier s'il peut roque avec la tour de gauche; si i est supérieur à zéro, alors doit vérifier s'il peut roque avec la tour de droite
-            if ((i < 0 && ((whiteCastlingPossibility.left && piece.side === "white") || (blackCastlingPossibility.left && piece.side === "black"))) || 
-                (i > 0 && ((whiteCastlingPossibility.right && piece.side === "white") || (blackCastlingPossibility.right && piece.side === "black")))) {
-                //check si la première pièce qu'il rencontre est bien une tour
-                do {
-                    incrementToCheckCastling += i;
-                
-                    horizontalMove = pieceColumn + incrementToCheckCastling;
-                
-                    if (checkIfInBoard(pieceRow, horizontalMove)) {
-                        if (pieces[pieceRow][horizontalMove] !== "  ") {
-                            let firstPiece = identifyPiece(pieces[pieceRow][horizontalMove], pieceRow, horizontalMove);
-                            if (firstPiece.side === piece.side && firstPiece.name === "rook") {
-                                let possibility = setPossibility(pieceRow, pieceColumn, 0, incrementToCheckCastling);
-                                if (possibility) {
-                                    moves.push(possibility);
+        if (whatToCheck === "MoveAndAttack") {
+            //pour pouvoir roque
+            let horizontalMove = pieceColumn;
+    
+            //la boucle permet de check dans les deux directions, le signe permettant de changer le sens
+            for (let i = -1; i < 2; i+=2) {
+                let incrementToCheckCastling = 0;
+    
+                //si i est inférieur à zéro, alors doit vérifier s'il peut roque avec la tour de gauche; si i est supérieur à zéro, alors doit vérifier s'il peut roque avec la tour de droite
+                if ((i < 0 && ((whiteCastlingPossibility.left && piece.side === "white") || (blackCastlingPossibility.left && piece.side === "black"))) || 
+                    (i > 0 && ((whiteCastlingPossibility.right && piece.side === "white") || (blackCastlingPossibility.right && piece.side === "black")))) {
+                    //check si la première pièce qu'il rencontre est bien une tour
+                    do {
+                        incrementToCheckCastling += i;
+                    
+                        horizontalMove = pieceColumn + incrementToCheckCastling;
+                    
+                        if (checkIfInBoard(pieceRow, horizontalMove)) {
+                            if (pieces[pieceRow][horizontalMove] !== "  ") {
+                                let firstPiece = identifyPiece(pieces[pieceRow][horizontalMove], pieceRow, horizontalMove);
+                                if (firstPiece.side === piece.side && firstPiece.name === "rook") {
+                                    let possibility = setPossibility(pieceRow, pieceColumn, 0, incrementToCheckCastling);
+                                    if (possibility) {
+                                        moves.push(possibility);
+                                    }
                                 }
                             }
                         }
-                    }
-                } while (checkIfInBoard(pieceRow, horizontalMove) && pieces[pieceRow][horizontalMove] === "  ");    
+                    } while (checkIfInBoard(pieceRow, horizontalMove) && pieces[pieceRow][horizontalMove] === "  " && 
+                            ((piece.side === "white" && blackAttack[pieceRow][horizontalMove] !== 'x') || (piece.side === "black" && whiteAttack[pieceRow][horizontalMove] !== 'x')));
+                }
+                        
             }
-                    
         }
-        
 
         return moves;
     }

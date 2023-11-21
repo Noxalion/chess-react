@@ -4,6 +4,7 @@ import './App.css';
 
 
 function Game() {
+    //tableau constitutionnel du jeu
     const [pieces, setPieces] = useState([
         ['wr', 'wn', 'wb', 'wk', 'wq', 'wb', 'wn', 'wr'],
         ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
@@ -30,6 +31,30 @@ function Game() {
         //avec la tour à droite
         right: true
     });
+
+    //chaque case sur le plateau qui est attaqué par une pièce blanche
+    const [whiteAttack, setWhiteAttack] = useState([
+        [' ', 'x', 'x', 'x', 'x', 'x', 'x', ' '],
+        ['x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'],
+        ['x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+    ]);
+
+    //chaque case sur le plateau qui est attaqué par une pièce noire
+    const [blackAttack, setBlackAttack] = useState([
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+        ['x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'],
+        ['x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'],
+        [' ', 'x', 'x', 'x', 'x', 'x', 'x', ' ']
+    ]);
 
 
     //le rendu du plateau de jeu
@@ -64,6 +89,11 @@ function Game() {
                     setWhiteCastlingPossibility={setWhiteCastlingPossibility}
                     blackCastlingPossibility={blackCastlingPossibility}
                     setBlackCastlingPossibility={setBlackCastlingPossibility}
+
+                    whiteAttack={whiteAttack}
+                    setWhiteAttack={setWhiteAttack}
+                    blackAttack={blackAttack}
+                    setBlackAttack={setBlackAttack}
                 />
             </ul>
         </div>
