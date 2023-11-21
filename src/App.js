@@ -71,9 +71,6 @@ function Game() {
         state: "free"
     });
 
-    const [whiteWin, setWhiteWin] = useState(false);
-    const [blackWin, setBlackWin] = useState(false);
-
 
     //le rendu du plateau de jeu
     return (

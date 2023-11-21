@@ -1,5 +1,6 @@
-function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whatToCheck = "MoveAndAttack"){
-    //le paramètre whatToCheck permet de savoir si l'on doit vérifier les mouvements (et donc renvois les mouvements et possibilités de prise) ou juste les possibilités d'attaques (et donc là où une pièce peut en prendre d'autres, doit donc spécifier aussi quand s'arrête sur une pièce alliée pour la protéger)
+function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState, whatToCheck = "MoveAndAttack"){
+    //le paramètre whatToCheck permet de savoir si l'on doit vérifier les mouvements ("MoveAndAttack" et donc renvois les mouvements et possibilités de prise) 
+    //ou juste les possibilités d'attaques ("onlyAttack" et donc là où une pièce peut en prendre d'autres, doit donc spécifier aussi quand s'arrête sur une pièce alliée pour la protéger)
 
     switch (piece.name) {
         case "pawn":
@@ -284,7 +285,9 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
                     }
                 }
             }
-        } while (checkIfInBoard(verticalMove, horizontalMove) && pieces[verticalMove][horizontalMove] === "  ");
+        } while (checkIfInBoard(verticalMove, horizontalMove) && (pieces[verticalMove][horizontalMove] === "  "
+                || (whatToCheck === "onlyAttack" && ((pieces[verticalMove][horizontalMove] === "wk" && piece.side === "black") || (pieces[verticalMove][horizontalMove] === "bk" && piece.side === "white")))));
+
         return tablePossibilities;
     }
 
@@ -351,9 +354,9 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
             }
         }
 
-        
-        if (whatToCheck === "MoveAndAttack") {
-            //pour pouvoir roque
+        //code pour pouvoir roque
+        //ne peut pas roque si le roi est en échec
+        if (((piece.side === "white" && whiteKingState.state === "free") || (piece.side === "black" && blackKingState.state === "free")) && whatToCheck === "MoveAndAttack") {
             let horizontalMove = pieceColumn;
     
             //la boucle permet de check dans les deux directions, le signe permettant de changer le sens
