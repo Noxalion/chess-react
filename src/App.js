@@ -56,6 +56,24 @@ function Game() {
         [' ', 'x', 'x', 'x', 'x', 'x', 'x', ' ']
     ]);
 
+    const [whiteKingState, setWhiteKingState] = useState({
+        side: "white",
+        type: "wk",
+        name: "king",
+        coordinates: "0-3",
+        state: "free"
+    });
+    const [blackKingState, setBlackKingState] = useState({
+        side: "black",
+        type: "bk",
+        name: "king",
+        coordinates: "7-3",
+        state: "free"
+    });
+
+    const [whiteWin, setWhiteWin] = useState(false);
+    const [blackWin, setBlackWin] = useState(false);
+
 
     //le rendu du plateau de jeu
     return (
@@ -94,6 +112,11 @@ function Game() {
                     setWhiteAttack={setWhiteAttack}
                     blackAttack={blackAttack}
                     setBlackAttack={setBlackAttack}
+
+                    whiteKingState={whiteKingState}
+                    setWhiteKingState={setWhiteKingState}
+                    blackKingState={blackKingState}
+                    setBlackKingState={setBlackKingState}
                 />
             </ul>
         </div>

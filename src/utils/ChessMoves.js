@@ -1,4 +1,5 @@
 function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whatToCheck = "MoveAndAttack"){
+    //le paramètre whatToCheck permet de savoir si l'on doit vérifier les mouvements (et donc renvois les mouvements et possibilités de prise) ou juste les possibilités d'attaques (et donc là où une pièce peut en prendre d'autres, doit donc spécifier aussi quand s'arrête sur une pièce alliée pour la protéger)
 
     switch (piece.name) {
         case "pawn":

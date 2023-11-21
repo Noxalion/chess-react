@@ -90,6 +90,46 @@ ul{
             opacity: 80%;
         }
     }
+
+    &--check{
+        position: relative;
+        &::before{
+            content: "";
+            font-size: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            border: 5px solid red;
+            opacity: 90%;
+        }
+
+        &mate{
+            position: relative;
+            &::before{
+                content: "";
+                font-size: 0;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background-color: red;
+                opacity: 90%;
+            }
+        }
+    }
+
+    &--cantMove{
+        position: relative;
+        &::before{
+            content: "";
+            font-size: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: purple;
+            opacity: 80%;
+        }
+    }
 }
 
 .piece{

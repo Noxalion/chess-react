@@ -14,7 +14,12 @@ function Board(props) {
         whiteAttack,
         setWhiteAttack,
         blackAttack,
-        setBlackAttack} = props;
+        setBlackAttack,
+        whiteKingState,
+        setWhiteKingState,
+        blackKingState,
+        setBlackKingState
+    } = props;
     
     let squares = [];
     let squareColor;
@@ -44,6 +49,8 @@ function Board(props) {
                     pieceOnSquare={piece}
                     pieceSelected={pieceSelected}
                     possibilitiesOfMoves={possibilitiesOfMoves}
+                    whiteKingState={whiteKingState}
+                    blackKingState={blackKingState}
                 ></Square>
             );
         }
@@ -186,11 +193,6 @@ function Board(props) {
         setPieceSelected(null);
         setPossibilitiesOfMoves([]);
         updateAttack();
-
-        console.log("Tableau d'attaques des blancs");
-        console.log(whiteAttack);
-        console.log("Tableau d'attaques des noirs");
-        console.log(blackAttack);
     }
 
     //function appliquant le déplacement choisi de la pièce
@@ -297,9 +299,11 @@ function Board(props) {
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if (pieces[i][j] !== "  ") {
+                    //identifie la pièce et ses possibilités d'attaques
                     let pieceThere = identifyPiece(pieces[i][j], i, j);
                     let attackPossibility = ChessMoves(pieceThere, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, "onlyAttack");
 
+                    //ajoute les possibilités d'attaques au tableau de l'équipe de la pièce
                     if (pieceThere.side === "white") {
                         for (let i = 0; i < attackPossibility.length; i++) {
                             let attackRow = Number(attackPossibility[i].split('-')[0]);
@@ -307,9 +311,6 @@ function Board(props) {
 
                             nextWhiteAttack[attackRow][attackColumn] = "x";
                         }
-                
-                        setWhiteAttack(nextWhiteAttack);
-                        
                     }else if (pieceThere.side === "black") {
                         for (let i = 0; i < attackPossibility.length; i++) {
                             let attackRow = Number(attackPossibility[i].split('-')[0]);
@@ -317,29 +318,69 @@ function Board(props) {
 
                             nextBlackAttack[attackRow][attackColumn] = "x";
                         }
-                
-                        setBlackAttack(nextBlackAttack);
                     }
                 }                
             }
-        }        
+        }
+        
+        //set les nouveaux tableaux d'attaques pour les deux équipes
+        setWhiteAttack(nextWhiteAttack);
+        setBlackAttack(nextBlackAttack);
+        kingStateChecker();
+        console.log(whiteKingState.state);
+    }
+
+
+    //check si le roi est en échec, en échec et mat ou s'il y a égalité
+    function kingStateChecker(){
+        let copyWhiteKingState = whiteKingState;
+        if (ChessMoves(whiteKingState, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack) === null) {
+            if (blackAttack[whiteKingState.coordinates.split('-')[0]][whiteKingState.coordinates.split('-')[1]] === "x") {
+                copyWhiteKingState.state = "checkmate";
+            }else{
+                copyWhiteKingState.state = "cantMove";
+            }
+        }else if(ChessMoves(whiteKingState, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack) !== null 
+                 && blackAttack[whiteKingState.coordinates.split('-')[0]][whiteKingState.coordinates.split('-')[1]] === "x"){
+            copyWhiteKingState.state = "check";
+        }
+        setWhiteKingState(copyWhiteKingState);
+
+        let copyBlackKingState = blackKingState;
+        if (ChessMoves(blackKingState, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack) === null) {
+            if (whiteAttack[blackKingState.coordinates.split('-')[0]][blackKingState.coordinates.split('-')[1]] === "x") {
+                copyBlackKingState.state = "checkmate";
+            }else{
+                copyBlackKingState.state = "cantMove";
+            }
+        }else if(ChessMoves(blackKingState, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack) !== null
+                 && whiteAttack[blackKingState.coordinates.split('-')[0]][blackKingState.coordinates.split('-')[1]] === "x"){
+            copyBlackKingState.state = "check";
+        }
+        setBlackKingState(copyBlackKingState);
     }
     
     return squares;
 }
      
 //function caractérisant une case
-function Square({position, color, onSquareClick, row, column,identifyPiece, pieceOnSquare, pieceSelected, possibilitiesOfMoves}){
+function Square({position, color, onSquareClick, row, column,identifyPiece, pieceOnSquare, pieceSelected, possibilitiesOfMoves, whiteKingState, blackKingState}){
 
-    let squareAspect;
+    let effectOnSquare = "square--noEffect";
 
     if (pieceSelected && pieceSelected.coordinates === row + '-' + column) {
-        squareAspect = "square " + color + " square--selected";
+        effectOnSquare = "square--selected";
     }else if (possibilitiesOfMoves.includes(row + '-' + column)) {
-        squareAspect = "square " + color + " square--possibility";
-    }else{
-        squareAspect = "square " + color;
+        effectOnSquare = "square--possibility";
+    }else if((whiteKingState.state === "check" && whiteKingState.coordinates === row + '-' + column) || (blackKingState.state === "check" && blackKingState.coordinates === row + '-' + column)){
+        effectOnSquare = "square--check";
+    }else if((whiteKingState.state === "checkmate" && whiteKingState.coordinates === row + '-' + column) || (blackKingState.state === "checkmate" && blackKingState.coordinates === row + '-' + column)){
+        effectOnSquare = "square--checkmate";
+    }else if((whiteKingState.state === "cantMove" && whiteKingState.coordinates === row + '-' + column) || (blackKingState.state === "cantMove" && blackKingState.coordinates === row + '-' + column)){
+        effectOnSquare = "square--cantMove";
     }
+
+    let squareAspect = `square ${color} ${effectOnSquare}`;
     
     let isThereAPiece = (pieceOnSquare !== "  ");
     let pieceHere = identifyPiece(pieceOnSquare, row, column);
