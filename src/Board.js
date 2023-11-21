@@ -255,11 +255,19 @@ function Board(props) {
                 left: false,
                 right: false
             });
+
+            let copyWhiteKingState = whiteKingState;
+            copyWhiteKingState.coordinates = kingStartingCoordinates[0] + '-' + kingEndCoordinateX;
+            setWhiteKingState(copyWhiteKingState);
         }else if(pieceSelected.side === "black") {
             setBlackCastlingPossibility({
                 left: false,
                 right: false
             });
+
+            let copyBlackKingState = blackKingState;
+            copyBlackKingState.coordinates = kingStartingCoordinates[0] + '-' + kingEndCoordinateX;;
+            setWhiteKingState(copyBlackKingState);
         }
 
         setPieces(nextPieces);
@@ -346,14 +354,9 @@ function Board(props) {
         //set les nouveaux tableaux d'attaques pour les deux équipes
         setWhiteAttack(nextWhiteAttack);
         setBlackAttack(nextBlackAttack);
-        kingStateChecker();
-    }
+        
 
-
-
-
-    //check si le roi est en échec, en échec et mat ou s'il y a égalité
-    function kingStateChecker(){
+        //check si le roi est en échec, en échec et mat ou s'il y a égalité
         let copyWhiteKingState = whiteKingState;
         if (ChessMoves(whiteKingState, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState).length !== 0) {
             if (blackAttack[whiteKingState.coordinates.split('-')[0]][whiteKingState.coordinates.split('-')[1]] === "x") {
@@ -363,12 +366,12 @@ function Board(props) {
             }
         }else{
             if (blackAttack[whiteKingState.coordinates.split('-')[0]][whiteKingState.coordinates.split('-')[1]] === "x") {
-                copyWhiteKingState.state = "checkmate";
+                copyWhiteKingState.state = "check";
+                //copyWhiteKingState.state = "checkmate";
             }else{
-                //copyWhiteKingState.state = "cantMove";
+                //copyWhiteKingState.state = "stalemate";
             }
         }
-        setWhiteKingState(copyWhiteKingState);
 
         let copyBlackKingState = blackKingState;
         if (ChessMoves(blackKingState, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState).length !== 0) {
@@ -379,11 +382,15 @@ function Board(props) {
             }
         }else{
             if (whiteAttack[blackKingState.coordinates.split('-')[0]][blackKingState.coordinates.split('-')[1]] === "x") {
-                copyBlackKingState.state = "checkmate";
+                copyWhiteKingState.state = "check";
+                //copyBlackKingState.state = "checkmate";
             }else{
-                //copyWhiteKingState.state = "cantMove";
+                //copyWhiteKingState.state = "stalemate";
             }
         }
+
+        //set les nouveaux tableaux d'attaques pour les deux équipes
+        setWhiteKingState(copyWhiteKingState);
         setBlackKingState(copyBlackKingState);
     }
     
@@ -406,8 +413,8 @@ function Square({position, color, onSquareClick, row, column,identifyPiece, piec
         effectOnSquare = "square--check";
     }else if((whiteKingState.state === "checkmate" && whiteKingState.coordinates === row + '-' + column) || (blackKingState.state === "checkmate" && blackKingState.coordinates === row + '-' + column)){
         effectOnSquare = "square--checkmate";
-    }else if((whiteKingState.state === "cantMove" && whiteKingState.coordinates === row + '-' + column) || (blackKingState.state === "cantMove" && blackKingState.coordinates === row + '-' + column)){
-        effectOnSquare = "square--cantMove";
+    }else if((whiteKingState.state === "stalemate" && whiteKingState.coordinates === row + '-' + column) || (blackKingState.state === "stalemate" && blackKingState.coordinates === row + '-' + column)){
+        effectOnSquare = "square--stalemate";
     }
 
     let squareAspect = `square ${color} ${effectOnSquare}`;
