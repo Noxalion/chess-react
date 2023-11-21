@@ -56,6 +56,7 @@ function Game() {
         [' ', 'x', 'x', 'x', 'x', 'x', 'x', ' ']
     ]);
 
+    //object sur l'état du roi blanc
     const [whiteKingState, setWhiteKingState] = useState({
         side: "white",
         type: "wk",
@@ -63,6 +64,8 @@ function Game() {
         coordinates: "0-3",
         state: "free"
     });
+
+    //object sur l'état du roi noir
     const [blackKingState, setBlackKingState] = useState({
         side: "black",
         type: "bk",
@@ -86,14 +89,14 @@ function Game() {
                 <li>8</li>
             </ul>
             <ul className='column-number'>
-                <li>1</li>
-                <li>2</li>
-                <li>3</li>
-                <li>4</li>
-                <li>5</li>
-                <li>6</li>
-                <li>7</li>
-                <li>8</li>
+                <li>A</li>
+                <li>B</li>
+                <li>C</li>
+                <li>D</li>
+                <li>E</li>
+                <li>F</li>
+                <li>G</li>
+                <li>H</li>
             </ul>
             <ul className="game__el board">
                 <Board 

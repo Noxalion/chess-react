@@ -356,7 +356,7 @@ function Board(props) {
         setBlackAttack(nextBlackAttack);
         
 
-        //check si le roi est en échec, en échec et mat ou s'il y a égalité
+        //check si les roi sont en échec, en échec et mat ou autres
         let copyWhiteKingState = whiteKingState;
         if (ChessMoves(whiteKingState, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState).length !== 0) {
             if (blackAttack[whiteKingState.coordinates.split('-')[0]][whiteKingState.coordinates.split('-')[1]] === "x") {
@@ -382,7 +382,7 @@ function Board(props) {
             }
         }else{
             if (whiteAttack[blackKingState.coordinates.split('-')[0]][blackKingState.coordinates.split('-')[1]] === "x") {
-                copyWhiteKingState.state = "check";
+                blackKingState.state = "check";
                 //copyBlackKingState.state = "checkmate";
             }else{
                 //copyWhiteKingState.state = "stalemate";
