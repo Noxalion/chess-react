@@ -67,6 +67,7 @@ function Board(props) {
             //au début du tour pour pouvoir selectionner une pièce que l'on veut déplacer (fait rien si clique sur une case sans pièce)
             let pieceHere = identifyPiece(piece, row, column);
             setPieceToMove(pieceHere);
+            
 
         }else if (selectionState === "selectMove"){
             //pour après avoir selectionner une pièce
@@ -125,94 +126,122 @@ function Board(props) {
     //function enregistrant quelle pièce est à déplacer et depuis où
     function setPieceToMove(piece){
         setPieceSelected(piece);
+
+        //tableau des possibilités qui ne mettent pas son propre roi en échec
+        let notOwnKingCheckingMoves = [];
+        //tableau de toutes les possibilités que la pièce peut faire normalement
+        let allPossibleMoves = ChessMoves(piece, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState);
+        
+        //boucle pour essayer toutes les possibilités de mouvements de la pièce et vérifier lesquelles ne mettent pas la pièce en échec
+        for (let i = 0; i < allPossibleMoves.length; i++) {
+            console.log(goToDestination(allPossibleMoves[i], "test", piece));
+            let notOwnKingCheckingFromMove = goToDestination(allPossibleMoves[i], "test", piece);
+            if (notOwnKingCheckingFromMove) {
+                notOwnKingCheckingMoves.push(allPossibleMoves[i]);
+            }
+        }
+
+        setPossibilitiesOfMoves(notOwnKingCheckingMoves);
         setSelectionState("selectMove");
-        setPossibilitiesOfMoves(ChessMoves(piece, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState));
     }
 
 
 
 
     //function appliquant le déplacement choisi de la pièce
-    function goToDestination(destination){
-        let startingCoordinates = pieceSelected.coordinates.split('-');
+    function goToDestination(destination, action = "update", pieceForTest = {}){
+        let pieceToProcess;
+        if (action === "update") {
+            pieceToProcess = pieceSelected;
+        }else if (action === "test") {
+            pieceToProcess = pieceForTest;
+        }
+
+        let startingCoordinates = pieceToProcess.coordinates.split('-');
         let finishCoordinates = destination.split('-');
 
-        //arrête la possibilité de roque si le roi s'est déplacé
-        if (pieceSelected.name === "king") {
-            if (pieceSelected.side === "white") {
-                setWhiteCastlingPossibility({
-                    left: false,
-                    right: false
-                });
-
-                let copyWhiteKingState = whiteKingState;
-                copyWhiteKingState.coordinates = destination;
-                setWhiteKingState(copyWhiteKingState);
-            }else if(pieceSelected.side === "black") {
-                setBlackCastlingPossibility({
-                    left: false,
-                    right: false
-                });
-
-                let copyBlackKingState = blackKingState;
-                copyBlackKingState.coordinates = destination;
-                setWhiteKingState(copyBlackKingState);
-            }
-        }
-
-        //arrête la possibilité de roque du coté de la tour qui est déplacée
-        if (pieceSelected.name === "rook") {
-            if (pieceSelected.side === "white") {
-                //crée une copie pour ne pas reset soit le paramètre left soit right de l'Object
-                let copyWhiteCastlingPossibility = whiteCastlingPossibility;
-
-                //si c'est la tour de gauche qui a bougée
-                if (pieceSelected.coordinates === "0-0") {
-                    copyWhiteCastlingPossibility.left = false;
-                    setWhiteCastlingPossibility(copyWhiteCastlingPossibility);
-
-                //si c'est la tour de droite qui a bougée
-                }else if (pieceSelected.coordinates === "0-7") {
-                    copyWhiteCastlingPossibility.right = false;
-                    setWhiteCastlingPossibility(copyWhiteCastlingPossibility);
-
-                }
-            }else if(pieceSelected.side === "black") {
-                //crée une copie pour ne pas reset soit le paramètre left soit right de l'Object
-                let copyBlackCastlingPossibility = blackCastlingPossibility;
-
-                //si c'est la tour de gauche qui a bougée
-                if (pieceSelected.coordinates === "7-0") {
-                    copyBlackCastlingPossibility.left = false;
-                    setWhiteCastlingPossibility(copyBlackCastlingPossibility);
-
-                //si c'est la tour de droite qui a bougée
-                }else if (pieceSelected.coordinates === "7-7") {
-                    copyBlackCastlingPossibility.right = false;
-                    setWhiteCastlingPossibility(copyBlackCastlingPossibility);
-
+        if (action === "update") {
+            //arrête la possibilité de roque si le roi s'est déplacé
+            if (pieceToProcess.name === "king") {
+                if (pieceToProcess.side === "white") {
+                    setWhiteCastlingPossibility({
+                        left: false,
+                        right: false
+                    });
+    
+                    let copyWhiteKingState = whiteKingState;
+                    copyWhiteKingState.coordinates = destination;
+                    setWhiteKingState(copyWhiteKingState);
+                }else if(pieceToProcess.side === "black") {
+                    setBlackCastlingPossibility({
+                        left: false,
+                        right: false
+                    });
+    
+                    let copyBlackKingState = blackKingState;
+                    copyBlackKingState.coordinates = destination;
+                    setWhiteKingState(copyBlackKingState);
                 }
             }
+    
+            //arrête la possibilité de roque du coté de la tour qui est déplacée
+            if (pieceToProcess.name === "rook") {
+                if (pieceToProcess.side === "white") {
+                    //crée une copie pour ne pas reset soit le paramètre left soit right de l'Object
+                    let copyWhiteCastlingPossibility = whiteCastlingPossibility;
+    
+                    //si c'est la tour de gauche qui a bougée
+                    if (pieceToProcess.coordinates === "0-0") {
+                        copyWhiteCastlingPossibility.left = false;
+                        setWhiteCastlingPossibility(copyWhiteCastlingPossibility);
+    
+                    //si c'est la tour de droite qui a bougée
+                    }else if (pieceToProcess.coordinates === "0-7") {
+                        copyWhiteCastlingPossibility.right = false;
+                        setWhiteCastlingPossibility(copyWhiteCastlingPossibility);
+    
+                    }
+                }else if(pieceToProcess.side === "black") {
+                    //crée une copie pour ne pas reset soit le paramètre left soit right de l'Object
+                    let copyBlackCastlingPossibility = blackCastlingPossibility;
+    
+                    //si c'est la tour de gauche qui a bougée
+                    if (pieceToProcess.coordinates === "7-0") {
+                        copyBlackCastlingPossibility.left = false;
+                        setWhiteCastlingPossibility(copyBlackCastlingPossibility);
+    
+                    //si c'est la tour de droite qui a bougée
+                    }else if (pieceToProcess.coordinates === "7-7") {
+                        copyBlackCastlingPossibility.right = false;
+                        setWhiteCastlingPossibility(copyBlackCastlingPossibility);
+    
+                    }
+                }
+            }
         }
+        
 
         //copie du tableau de jeu et update de la copie selon l'action du joueur
         const nextPieces = pieces.slice();
         for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                nextPieces[i][j].slice();
-            }
+            nextPieces[i] = pieces[i].slice();
         }
+        
 
         let squareOfStart = nextPieces[startingCoordinates[0]][startingCoordinates[1]];
         nextPieces[startingCoordinates[0]][startingCoordinates[1]] = "  ";
         nextPieces[finishCoordinates[0]][finishCoordinates[1]] = squareOfStart;
 
-        //update du tableau de jeu et reset des paramètres de selection (pour pouvoir rechoisir une pièce)
-        setPieces(nextPieces);
-        setSelectionState("selectPiece");
-        setPieceSelected(null);
-        setPossibilitiesOfMoves([]);
-        updateAttack();
+        if (action === "update") {
+            //update du tableau de jeu et reset des paramètres de selection (pour pouvoir rechoisir une pièce)
+            setPieces(nextPieces);
+            setSelectionState("selectPiece");
+            setPieceSelected(null);
+            setPossibilitiesOfMoves([]);
+            generateNewAttack(nextPieces);
+        }else if(action === "test"){
+            return generateNewAttack(nextPieces, "test", pieceToProcess.side);
+        }
     }
 
 
@@ -237,9 +266,7 @@ function Board(props) {
 
         const nextPieces = pieces.slice();
         for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                nextPieces[i][j].slice();
-            }
+            nextPieces[i] = pieces[i].slice();
         }
 
         let kingSquareOfStart = nextPieces[kingStartingCoordinates[0]][kingStartingCoordinates[1]];
@@ -274,7 +301,7 @@ function Board(props) {
         setSelectionState("selectPiece");
         setPieceSelected(null);
         setPossibilitiesOfMoves([]);
-        updateAttack();
+        generateNewAttack();
     }
        
     
@@ -309,14 +336,17 @@ function Board(props) {
 
 
     //function pour update les tableaux d'attaques de chaque équipe
-    function updateAttack(){
+    function generateNewAttack(nextPieces, action = "update", teamForTest = "none"){
         //copie du tableau des cases attaqués par chaque camp
         const nextWhiteAttack = whiteAttack.slice();
         const nextBlackAttack = blackAttack.slice();
         for (let i = 0; i < 8; i++) {
+            nextWhiteAttack[i] = whiteAttack[i].slice();
+            nextBlackAttack[i] = blackAttack[i].slice();
+        }
+
+        for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
-                nextWhiteAttack[i][j].slice();
-                nextBlackAttack[i][j].slice();
                 //reset les copies des tableaux pour être sûr de ne pas avoir une case attaquée alors que ce n'est pas le cas
                 nextWhiteAttack[i][j] = " ";
                 nextBlackAttack[i][j] = " ";
@@ -326,10 +356,10 @@ function Board(props) {
         //place une croix dans la case du tableau à chaque endroit où une case est attaquée
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
-                if (pieces[i][j] !== "  ") {
+                if (nextPieces[i][j] !== "  ") {
                     //identifie la pièce et ses possibilités d'attaques
-                    let pieceThere = identifyPiece(pieces[i][j], i, j);
-                    let attackPossibility = ChessMoves(pieceThere, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState, "onlyAttack");
+                    let pieceThere = identifyPiece(nextPieces[i][j], i, j);
+                    let attackPossibility = ChessMoves(pieceThere, nextPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState, "onlyAttack");
 
                     //ajoute les possibilités d'attaques au tableau de l'équipe de la pièce
                     if (pieceThere.side === "white") {
@@ -351,21 +381,17 @@ function Board(props) {
             }
         }
         
-        //set les nouveaux tableaux d'attaques pour les deux équipes
-        setWhiteAttack(nextWhiteAttack);
-        setBlackAttack(nextBlackAttack);
-        
 
         //check si les roi sont en échec, en échec et mat ou autres
         let copyWhiteKingState = whiteKingState;
-        if (ChessMoves(whiteKingState, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState).length !== 0) {
-            if (blackAttack[whiteKingState.coordinates.split('-')[0]][whiteKingState.coordinates.split('-')[1]] === "x") {
+        if (ChessMoves(copyWhiteKingState, nextPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState).length !== 0) {
+            if (nextBlackAttack[copyWhiteKingState.coordinates.split('-')[0]][copyWhiteKingState.coordinates.split('-')[1]] === "x") {
                 copyWhiteKingState.state = "check";
             }else{
                 copyWhiteKingState.state = "free";
             }
         }else{
-            if (blackAttack[whiteKingState.coordinates.split('-')[0]][whiteKingState.coordinates.split('-')[1]] === "x") {
+            if (nextBlackAttack[copyWhiteKingState.coordinates.split('-')[0]][copyWhiteKingState.coordinates.split('-')[1]] === "x") {
                 copyWhiteKingState.state = "check";
                 //copyWhiteKingState.state = "checkmate";
             }else{
@@ -374,24 +400,39 @@ function Board(props) {
         }
 
         let copyBlackKingState = blackKingState;
-        if (ChessMoves(blackKingState, pieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState).length !== 0) {
-            if (whiteAttack[blackKingState.coordinates.split('-')[0]][blackKingState.coordinates.split('-')[1]] === "x") {
+        if (ChessMoves(copyBlackKingState, nextPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState).length !== 0) {
+            if (nextWhiteAttack[copyBlackKingState.coordinates.split('-')[0]][copyBlackKingState.coordinates.split('-')[1]] === "x") {
                 copyBlackKingState.state = "check";
             }else{
                 copyBlackKingState.state = "free";
             }
         }else{
-            if (whiteAttack[blackKingState.coordinates.split('-')[0]][blackKingState.coordinates.split('-')[1]] === "x") {
-                blackKingState.state = "check";
+            if (nextWhiteAttack[copyBlackKingState.coordinates.split('-')[0]][copyBlackKingState.coordinates.split('-')[1]] === "x") {
+                copyBlackKingState.state = "check";
                 //copyBlackKingState.state = "checkmate";
             }else{
-                //copyWhiteKingState.state = "stalemate";
+                //copyBlackKingState.state = "stalemate";
             }
         }
 
-        //set les nouveaux tableaux d'attaques pour les deux équipes
-        setWhiteKingState(copyWhiteKingState);
-        setBlackKingState(copyBlackKingState);
+        if (action === "update") {
+            //set les nouveaux tableaux d'attaques pour les deux équipes
+            setWhiteAttack(nextWhiteAttack);
+            setBlackAttack(nextBlackAttack);
+            console.log(nextWhiteAttack);
+            
+            //set les nouveaux tableaux d'attaques pour les deux équipes
+            setWhiteKingState(copyWhiteKingState);
+            setBlackKingState(copyBlackKingState);
+        }else if(action === "test"){
+            if ((teamForTest === "white" && (copyWhiteKingState.state === "check" || copyWhiteKingState.state === "checkmate")) || 
+                (teamForTest === "black" && (copyBlackKingState.state === "check" || copyBlackKingState.state === "checkmate"))) {
+                return false;
+            }else{
+                return true;
+            }
+        }
+        
     }
     
     return squares;
