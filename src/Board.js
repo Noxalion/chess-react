@@ -250,7 +250,17 @@ function Board(props) {
             setPieceSelected(null);
             setPossibilitiesOfMoves([]);
             generateNewAttack(nextPieces, latestWhiteKingState, latestBlackKingState);
-            console.log(latestWhiteKingState);
+
+            console.log("white king: " + latestWhiteKingState.state);
+            console.log("coordinates: " + latestWhiteKingState.coordinates);
+            console.log("black king: " + latestBlackKingState.state);
+            console.log("coordinates: " + latestBlackKingState.coordinates);
+            console.log(" ");
+            console.log("white attacks: ");
+            console.log(whiteAttack);
+            console.log("black attacks: ");
+            console.log(blackAttack);
+            console.log("--------------------------------");
         }else if(action === "test"){
             return generateNewAttack(nextPieces, latestWhiteKingState, latestBlackKingState, "test", pieceToProcess.side);
         }
@@ -416,6 +426,30 @@ function Board(props) {
             if (nextBlackAttack[copyWhiteKingState.coordinates.split('-')[0]][copyWhiteKingState.coordinates.split('-')[1]] === "x") {
                 //les cas où le roi est en échec
                 copyWhiteKingState.state = "check";
+
+                if (action === "update") {
+                    let foundPiecefromTeam = false;
+
+                    for (let i = 0; i < 8; i++) {
+                        for (let j = 0; j < 8; j++) {
+                            if (nextPieces[i][j] !== "  ") {
+                                let pieceThere = identifyPiece(nextPieces[i][j], i, j);
+                                if (pieceThere.side === "white") {
+                                    if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, newWhiteKingState, newBlackKingState)) {
+                                        foundPiecefromTeam = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (foundPiecefromTeam === true) {
+                            break;
+                        }
+                    }
+                    if(foundPiecefromTeam === false){
+                        copyWhiteKingState.state = "checkmate";
+                    }
+                }
             }else{
                 //les cas où le roi n'est pas en échec
 
@@ -457,6 +491,30 @@ function Board(props) {
             if (nextWhiteAttack[copyBlackKingState.coordinates.split('-')[0]][copyBlackKingState.coordinates.split('-')[1]] === "x") {
                 //les cas où le roi est en échec
                 copyBlackKingState.state = "check";
+
+                if (action === "update") {
+                    let foundPiecefromTeam = false;
+
+                    for (let i = 0; i < 8; i++) {
+                        for (let j = 0; j < 8; j++) {
+                            if (nextPieces[i][j] !== "  ") {
+                                let pieceThere = identifyPiece(nextPieces[i][j], i, j);
+                                if (pieceThere.side === "black") {
+                                    if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, newWhiteKingState, newBlackKingState)) {
+                                        foundPiecefromTeam = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (foundPiecefromTeam === true) {
+                            break;
+                        }
+                    }
+                    if(foundPiecefromTeam === false){
+                        copyBlackKingState.state = "checkmate";
+                    }
+                }
             }else{
                 //les cas où le roi n'est pas en échec
 
@@ -493,7 +551,7 @@ function Board(props) {
             setWhiteKingState(copyWhiteKingState);
             setBlackKingState(copyBlackKingState);
 
-            checkIfCheckmate(nextPieces, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState);
+            finishTurn(copyWhiteKingState, copyBlackKingState);
         }else if(action === "test"){
             if ((teamForTest === "white" && copyWhiteKingState.state === "check") || 
                 (teamForTest === "black" && copyBlackKingState.state === "check")) {
@@ -503,66 +561,6 @@ function Board(props) {
             }
         }
         
-    }
-
-
-
-
-    //check s'il y a un gagnant, si c'est draw ou si la partie continue
-    function checkIfCheckmate(nextPieces, newWhiteAttack, newBlackAttack, newWhiteKingState, newBlackKingState){
-        //clone les infos sur les rois pour pouvoir les exporter plus facilement après s'ils doivent être modifier
-        let copyWhiteKingState = newWhiteKingState;
-        let copyBlackKingState = newBlackKingState;
-        
-        if (copyWhiteKingState.state === "check") {
-            let foundPiecefromTeam = false;
-
-            for (let i = 0; i < 8; i++) {
-                for (let j = 0; j < 8; j++) {
-                    if (nextPieces[i][j] !== "  ") {
-                        let pieceThere = identifyPiece(nextPieces[i][j], i, j);
-                        if (pieceThere.side === "white") {
-                            if (setPieceToMove(pieceThere, "test", nextPieces, newWhiteAttack, newBlackAttack, newWhiteKingState, newBlackKingState)) {
-                                foundPiecefromTeam = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (foundPiecefromTeam === true) {
-                    break;
-                }
-            }
-            if(foundPiecefromTeam === false){
-                copyWhiteKingState.state = "checkmate";
-                setWhiteKingState(copyWhiteKingState);
-            }
-        }else if (copyBlackKingState.state === "check") {
-            let foundPiecefromTeam = false;
-
-            for (let i = 0; i < 8; i++) {
-                for (let j = 0; j < 8; j++) {
-                    if (nextPieces[i][j] !== "  ") {
-                        let pieceThere = identifyPiece(nextPieces[i][j], i, j);
-                        if (pieceThere.side === "black") {
-                            if (setPieceToMove(pieceThere, "test", nextPieces, newWhiteAttack, newBlackAttack, newWhiteKingState, newBlackKingState)) {
-                                foundPiecefromTeam = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (foundPiecefromTeam === true) {
-                    break;
-                }
-            }
-            if(foundPiecefromTeam === false){
-                copyBlackKingState.state = "checkmate";
-                setBlackKingState(copyBlackKingState);
-            }
-        }
-
-        finishTurn(copyWhiteKingState, copyBlackKingState);
     }
     
     return squares;
