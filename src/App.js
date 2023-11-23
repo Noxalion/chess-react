@@ -59,7 +59,7 @@ function Game() {
     //object sur l'état du roi blanc
     const [whiteKingState, setWhiteKingState] = useState({
         side: "white",
-        type: "wk",
+        type: "k",
         name: "king",
         coordinates: "0-3",
         state: "free"
@@ -68,7 +68,7 @@ function Game() {
     //object sur l'état du roi noir
     const [blackKingState, setBlackKingState] = useState({
         side: "black",
-        type: "bk",
+        type: "k",
         name: "king",
         coordinates: "7-3",
         state: "free"
@@ -77,15 +77,45 @@ function Game() {
     //valeur pour dire qui est le gagnant de la partie
     const [winner, setWinner] = useState("none");
 
+    //function pour voir l'état du jeu (si un jour à gagner ou si ça continue)
+    function checkGameState(latestWhiteKingState, latestBlackKingState) {
+        if (latestWhiteKingState.state === "checkmate") {
+            setWinner("Black wins");
+        }else if(latestBlackKingState.state === "checkmate"){
+            setWinner("White wins");
+        }else if (latestWhiteKingState.state === "stalemate" || latestBlackKingState.state === "stalemate"){
+            setWinner("Draw");
+        }
+    }
+
+    //permet de savoir quel tour on est
+    const [turn, setTurn] = useState(1);
+    //variable pour qui peut jouer ce tour
+    const [teamTurn, setTeamTurn] = useState("white");
+
+    function finishTurn(latestWhiteKingState, latestBlackKingState){
+        let newTurn = structuredClone(turn);
+        if(newTurn % 2 === 1){
+            setTeamTurn("black");
+        }else{
+            setTeamTurn("white");
+        }
+        newTurn++;
+        checkGameState(latestWhiteKingState, latestBlackKingState);
+        setTurn(newTurn);
+    }
+    
 
     //le rendu du plateau de jeu
     return (
         <div className='game'>
+            {winner === "none" &&
+                <div className={`turn turn--${teamTurn}`}>
+                    Turn of the {teamTurn} team
+                </div>
+            }
             {winner !== "none" && 
-                <div 
-                    className="winnerDisplay"
-                    key={winner}
-                >
+                <div className={`winnerDisplay winnerDisplay--${winner.replace(/\s/g, '-')}`}>
                     {winner}
                 </div>
             }
@@ -129,7 +159,8 @@ function Game() {
                     blackKingState={blackKingState}
                     setBlackKingState={setBlackKingState}
 
-                    setWinner={setWinner}
+                    finishTurn={finishTurn}
+                    teamTurn={teamTurn}
                 />
             </ul>
         </div>
