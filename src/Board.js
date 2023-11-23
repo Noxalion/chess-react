@@ -517,7 +517,29 @@ function Board(props) {
         let copyBlackKingState = newBlackKingState;
         
         if (copyWhiteKingState.state === "check") {
-            
+            let foundPiecefromTeam = false;
+
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    if (nextPieces[i][j] !== "  ") {
+                        let pieceThere = identifyPiece(nextPieces[i][j], i, j);
+                        if (pieceThere.side === "white") {
+                            if (setPieceToMove(pieceThere, "test")) {
+                                foundPiecefromTeam = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (foundPiecefromTeam === true) {
+                    break;
+                }
+            }
+            if(foundPiecefromTeam === false){
+                copyWhiteKingState.state = "checkmate";
+                setWhiteKingState(copyWhiteKingState);
+                setWinner("Black wins");
+            }
         }else if (copyBlackKingState.state === "check") {
             let foundPiecefromTeam = false;
 
