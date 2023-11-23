@@ -18,7 +18,8 @@ function Board(props) {
         whiteKingState,
         setWhiteKingState,
         blackKingState,
-        setBlackKingState
+        setBlackKingState,
+        setWinner
     } = props;
     
     let squares = [];
@@ -124,9 +125,7 @@ function Board(props) {
 
 
     //function enregistrant quelle pièce est à déplacer et depuis où
-    function setPieceToMove(piece){
-        setPieceSelected(piece);
-
+    function setPieceToMove(piece, action = "update"){
         //tableau des possibilités qui ne mettent pas son propre roi en échec
         let kingSafeMoves = [];
         //tableau de toutes les possibilités que la pièce peut faire normalement
@@ -140,8 +139,17 @@ function Board(props) {
             }
         }
 
-        setPossibilitiesOfMoves(kingSafeMoves);
-        setSelectionState("selectMove");
+        if (action === "update") {
+            setPieceSelected(piece);
+            setPossibilitiesOfMoves(kingSafeMoves);
+            setSelectionState("selectMove");
+        }else{
+            if (kingSafeMoves.length === 0) {
+                return false;
+            }else{
+                return true;
+            }
+        }
     }
 
 
@@ -219,7 +227,7 @@ function Board(props) {
                     }else if (pieceToProcess.coordinates === "7-7") {
                         copyBlackCastlingPossibility.right = false;
                         setWhiteCastlingPossibility(copyBlackCastlingPossibility);
-    
+
                     }
                 }
             }
@@ -244,6 +252,7 @@ function Board(props) {
             setPieceSelected(null);
             setPossibilitiesOfMoves([]);
             generateNewAttack(nextPieces, copyWhiteKingState, copyBlackKingState);
+            checkGameState(nextPieces, copyWhiteKingState, copyBlackKingState);
 
         }else if(action === "test"){
             return generateNewAttack(nextPieces, copyWhiteKingState, copyBlackKingState, "test", pieceToProcess.side);
@@ -310,6 +319,7 @@ function Board(props) {
         setPieceSelected(null);
         setPossibilitiesOfMoves([]);
         generateNewAttack(nextPieces, copyWhiteKingState, copyBlackKingState);
+        checkGameState(nextPieces, copyWhiteKingState, copyBlackKingState);
     }
        
     
@@ -495,6 +505,46 @@ function Board(props) {
             }
         }
         
+    }
+
+
+
+
+    //check s'il y a un gagnant, si c'est draw ou si la partie continue
+    function checkGameState(nextPieces, newWhiteKingState, newBlackKingState){
+        //clone les infos sur les rois pour pouvoir les exporter plus facilement après s'ils doivent être modifier
+        let copyWhiteKingState = newWhiteKingState;
+        let copyBlackKingState = newBlackKingState;
+        
+        if (copyWhiteKingState.state === "check") {
+            
+        }else if (copyBlackKingState.state === "check") {
+            let foundPiecefromTeam = false;
+
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    if (nextPieces[i][j] !== "  ") {
+                        let pieceThere = identifyPiece(nextPieces[i][j], i, j);
+                        if (pieceThere.side === "black") {
+                            if (setPieceToMove(pieceThere, "test")) {
+                                foundPiecefromTeam = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (foundPiecefromTeam === true) {
+                    break;
+                }
+            }
+            if(foundPiecefromTeam === false){
+                copyBlackKingState.state = "checkmate";
+                setBlackKingState(copyBlackKingState);
+                setWinner("White wins");
+            }
+        }else if (copyWhiteKingState.state === "stalemate" || copyBlackKingState.state === "stalemate"){
+            setWinner("Draw");
+        }
     }
     
     return squares;

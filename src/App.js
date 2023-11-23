@@ -74,10 +74,21 @@ function Game() {
         state: "free"
     });
 
+    //valeur pour dire qui est le gagnant de la partie
+    const [winner, setWinner] = useState("none");
+
 
     //le rendu du plateau de jeu
     return (
         <div className='game'>
+            {winner !== "none" && 
+                <div 
+                    className="winnerDisplay"
+                    key={winner}
+                >
+                    {winner}
+                </div>
+            }
             <ul className='row-number'>
                 <li>1</li>
                 <li>2</li>
@@ -117,6 +128,8 @@ function Game() {
                     setWhiteKingState={setWhiteKingState}
                     blackKingState={blackKingState}
                     setBlackKingState={setBlackKingState}
+
+                    setWinner={setWinner}
                 />
             </ul>
         </div>
