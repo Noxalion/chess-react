@@ -126,7 +126,6 @@ function Board(props) {
     //function enregistrant quelle pièce est à déplacer et depuis où
     function setPieceToMove(piece){
         setPieceSelected(piece);
-        console.log(whiteAttack);
 
         //tableau des possibilités qui ne mettent pas son propre roi en échec
         let kingSafeMoves = [];
@@ -135,8 +134,6 @@ function Board(props) {
 
         //boucle pour essayer toutes les possibilités de mouvements de la pièce et vérifier lesquelles ne mettent pas la pièce en échec
         for (let i = 0; i < allPossibleMoves.length; i++) {
-            console.log(allPossibleMoves[i]);
-            console.log(goToDestination(allPossibleMoves[i], "test", piece));
             let isKingSafe = goToDestination(allPossibleMoves[i], "test", piece);
             if (isKingSafe) {
                 kingSafeMoves.push(allPossibleMoves[i]);
@@ -285,24 +282,26 @@ function Board(props) {
         nextPieces[rookStartingCoordinates[0]][rookStartingCoordinates[1]] = "  ";
         nextPieces[rookStartingCoordinates[0]][rookEndCoordinateX] = rookSquareOfStart;
 
+
+        //clone les infos sur les rois pour pouvoir les exporter plus facilement après s'ils doivent être modifier
+        let copyWhiteKingState = structuredClone(whiteKingState);
+        let copyBlackKingState = structuredClone(blackKingState);
+
         //arrête la possibilité de roque après l'avoir effectuer
         if (pieceSelected.side === "white") {
+            copyWhiteKingState.coordinates = kingStartingCoordinates[0] + '-' + kingEndCoordinateX;
             setWhiteCastlingPossibility({
                 left: false,
                 right: false
             });
-
-            let copyWhiteKingState = structuredClone(whiteKingState);
-            copyWhiteKingState.coordinates = kingStartingCoordinates[0] + '-' + kingEndCoordinateX;
             setWhiteKingState(copyWhiteKingState);
+            
         }else if(pieceSelected.side === "black") {
+            copyBlackKingState.coordinates = kingStartingCoordinates[0] + '-' + kingEndCoordinateX;;
             setBlackCastlingPossibility({
                 left: false,
                 right: false
             });
-
-            let copyBlackKingState = structuredClone(blackKingState);
-            copyBlackKingState.coordinates = kingStartingCoordinates[0] + '-' + kingEndCoordinateX;;
             setWhiteKingState(copyBlackKingState);
         }
 
@@ -310,7 +309,7 @@ function Board(props) {
         setSelectionState("selectPiece");
         setPieceSelected(null);
         setPossibilitiesOfMoves([]);
-        generateNewAttack(nextPieces);
+        generateNewAttack(nextPieces, copyWhiteKingState, copyBlackKingState);
     }
        
     
@@ -413,7 +412,28 @@ function Board(props) {
                 copyWhiteKingState.state = "check";
             }else{
                 //les cas où le roi n'est pas en échec
-                copyWhiteKingState.state = "free";
+
+                //variable pour voir s'il trouve une pièce alliée; en effet, s'il en trouve une, cela veut dire
+                //que le joueur peut encore agir et qu'il n'y a donc pas stalemate (le roi n'est pas check mais
+                //le joueur ne peut rien faire)
+                let foundPiecefromTeam = false;
+
+                for (let i = 0; i < 8; i++) {
+                    for (let j = 0; j < 8; j++) {
+                        if (pieces[i][j] !== "  " && pieces[i][j] !== "wk") {
+                            if (identifyPiece(pieces[i][j], i, j).side === "white") {
+                                copyWhiteKingState.state = "free";
+                                foundPiecefromTeam = true;
+                                break;
+                            }else{
+                                copyWhiteKingState.state = "stalemate";
+                            }
+                        }
+                    }
+                    if (foundPiecefromTeam === true) {
+                        break;
+                    }
+                }
             }
         }
 
@@ -433,7 +453,28 @@ function Board(props) {
                 copyBlackKingState.state = "check";
             }else{
                 //les cas où le roi n'est pas en échec
-                copyBlackKingState.state = "free";
+
+                //variable pour voir s'il trouve une pièce alliée; en effet, s'il en trouve une, cela veut dire
+                //que le joueur peut encore agir et qu'il n'y a donc pas stalemate (le roi n'est pas check mais
+                //le joueur ne peut rien faire)
+                let foundPiecefromTeam = false;
+                
+                for (let i = 0; i < 8; i++) {
+                    for (let j = 0; j < 8; j++) {
+                        if (pieces[i][j] !== "  " && pieces[i][j] !== "bk") {
+                            if (identifyPiece(pieces[i][j], i, j).side === "black") {
+                                copyBlackKingState.state = "free";
+                                foundPiecefromTeam = true;
+                                break;
+                            }else{
+                                copyBlackKingState.state = "stalemate";
+                            }
+                        }
+                    }
+                    if (foundPiecefromTeam === true) {
+                        break;
+                    }
+                }
             }
         }
 
