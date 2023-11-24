@@ -20,7 +20,9 @@ function Board(props) {
         blackKingState,
         setBlackKingState,
         finishTurn,
-        teamTurn
+        teamTurn,
+        setDisplayPromotion,
+        displayPromotion
     } = props;
     
     let squares = [];
@@ -58,6 +60,15 @@ function Board(props) {
         }
     }
     
+    //rendu du jeu (avec les cartes de promotions s'il y a une promotion à faire et les cases du plateau avec les pièces s'il y en a une dessus)
+    return (
+        <>
+            {displayPromotion && <PromotionCards piece={pieceSelected} pieces={pieces} latestWhiteKingState={whiteKingState} latestBlackKingState={blackKingState} />}
+            <ul className="game__el board">
+               {squares}
+            </ul>
+        </>
+    );
 
 
 
@@ -246,10 +257,22 @@ function Board(props) {
         if (action === "update") {
             //update du tableau de jeu et reset des paramètres de selection (pour pouvoir rechoisir une pièce)
             setPieces(nextPieces);
-            setSelectionState("selectPiece");
-            setPieceSelected(null);
             setPossibilitiesOfMoves([]);
-            generateAttackAndCheck(nextPieces, latestWhiteKingState, latestBlackKingState);
+            setSelectionState("selectPiece");
+
+            //si un pion arrive sur une case du coté adverse, il est alors promu; sinon, refresh la pièce selectionnée et les tableaux d'attaques
+            if (pieceToProcess.name === "pawn" && ((pieceToProcess.side === "white" && Number(finishCoordinates[0]) === 7) || (pieceToProcess.side === "black" && Number(finishCoordinates[0]) === 0))) {
+                //permet d'afficher les cartes de promotions
+                setDisplayPromotion(true);
+
+                //crée un copie de la pièce selectionnée et lui donne les nouvelles coordonnées pour pouvoir les passer correctement lors de la promotion
+                let newPiece = structuredClone(pieceToProcess);
+                newPiece.coordinates = finishCoordinates[0] + "-" + finishCoordinates[1];
+                setPieceSelected(newPiece);
+            }else{
+                setPieceSelected(null);
+                generateAttackAndCheck(nextPieces, latestWhiteKingState, latestBlackKingState);
+            }
         }else if(action === "test"){
             return generateAttackAndCheck(nextPieces, latestWhiteKingState, latestBlackKingState, "test", lastestWhiteAttack, latestBlackAttack, pieceToProcess.side);
         }
@@ -400,7 +423,7 @@ function Board(props) {
         }
         
 
-        //check si les roi sont en échec, en échec et mat ou autres
+        //check si les rois sont en échec, en échec et mat ou autres
         if (ChessMoves(copyWhiteKingState, nextPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState).length !== 0) {
             //les cas où le roi peut se déplacer
             if (nextBlackAttack[copyWhiteKingState.coordinates.split('-')[0]][copyWhiteKingState.coordinates.split('-')[1]] === "x") {
@@ -555,8 +578,41 @@ function Board(props) {
         }
         
     }
-    
-    return squares;
+
+
+    //function pour promouvoir une pièce
+    function promote(pieces, piece, promotion, latestWhiteKingState, latestBlackKingState){
+        //change dans le tableau des pièces la notation à l'endroit de la promotion
+        let team = (piece.side === "black") ? "b" : "w";
+        pieces[piece.coordinates.split('-')[0]][piece.coordinates.split('-')[1]] = team + promotion;
+        
+        //activation de fin de tour et retire les cartes de promotion
+        generateAttackAndCheck(pieces, latestWhiteKingState, latestBlackKingState);
+        setPieceSelected(null);
+        setDisplayPromotion(false);
+    }
+
+    //function des cartes de promotions
+    function PromotionCards(props){
+        let {
+            piece,
+            pieces,
+            latestWhiteKingState,
+            latestBlackKingState
+        } = props;
+
+        return (
+            <div className='cards'>
+                <p className={`cards__title ${piece.side}`}>Choisissez la promotion</p>
+                <ul className='cards__list'>
+                    <li className={`card piece queen ${piece.side}`} key="queen" onClick={() => promote(pieces, piece, "q", latestWhiteKingState, latestBlackKingState)}></li>
+                    <li className={`card piece rook ${piece.side}`} key="rook" onClick={() => promote(pieces, piece, "r", latestWhiteKingState, latestBlackKingState)}></li>
+                    <li className={`card piece bishop ${piece.side}`} key="bishop" onClick={() => promote(pieces, piece, "b", latestWhiteKingState, latestBlackKingState)}></li>
+                    <li className={`card piece knight ${piece.side}`} key="knight" onClick={() => promote(pieces, piece, "n", latestWhiteKingState, latestBlackKingState)}></li>
+                </ul>
+            </div>
+        );
+    }
 }
      
 

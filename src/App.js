@@ -104,7 +104,10 @@ function Game() {
         checkGameState(latestWhiteKingState, latestBlackKingState);
         setTurn(newTurn);
     }
-    
+
+    //pour afficher ou non les cartes de promotion
+    const [displayPromotion, setDisplayPromotion] = useState(false);
+
 
     //le rendu du plateau de jeu
     return (
@@ -139,30 +142,31 @@ function Game() {
                 <li>G</li>
                 <li>H</li>
             </ul>
-            <ul className="game__el board">
-                <Board 
-                    pieces={pieces} 
-                    setPieces={setPieces}
+            <Board 
+                pieces={pieces} 
+                setPieces={setPieces}
 
-                    whiteCastlingPossibility={whiteCastlingPossibility}
-                    setWhiteCastlingPossibility={setWhiteCastlingPossibility}
-                    blackCastlingPossibility={blackCastlingPossibility}
-                    setBlackCastlingPossibility={setBlackCastlingPossibility}
+                whiteCastlingPossibility={whiteCastlingPossibility}
+                setWhiteCastlingPossibility={setWhiteCastlingPossibility}
+                blackCastlingPossibility={blackCastlingPossibility}
+                setBlackCastlingPossibility={setBlackCastlingPossibility}
 
-                    whiteAttack={whiteAttack}
-                    setWhiteAttack={setWhiteAttack}
-                    blackAttack={blackAttack}
-                    setBlackAttack={setBlackAttack}
+                whiteAttack={whiteAttack}
+                setWhiteAttack={setWhiteAttack}
+                blackAttack={blackAttack}
+                setBlackAttack={setBlackAttack}
 
-                    whiteKingState={whiteKingState}
-                    setWhiteKingState={setWhiteKingState}
-                    blackKingState={blackKingState}
-                    setBlackKingState={setBlackKingState}
+                whiteKingState={whiteKingState}
+                setWhiteKingState={setWhiteKingState}
+                blackKingState={blackKingState}
+                setBlackKingState={setBlackKingState}
 
-                    finishTurn={finishTurn}
-                    teamTurn={teamTurn}
-                />
-            </ul>
+                finishTurn={finishTurn}
+                teamTurn={teamTurn}
+
+                setDisplayPromotion={setDisplayPromotion}
+                displayPromotion={displayPromotion}
+            />
         </div>
     );
 }

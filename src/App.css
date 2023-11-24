@@ -200,4 +200,50 @@ ul {
   border: 2px white solid;
   background-color: black;
   color: white;
+}
+
+.card {
+  border-radius: 2vh;
+  background-color: white;
+  border: 2px solid black;
+  background-size: contain;
+  background-position: 50% 50%;
+  pointer-events: all;
+  cursor: pointer;
+}
+.cards {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background-color: rgba(0, 0, 0, 0.85);
+}
+.cards__list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5vh;
+  padding-left: 5vh;
+  padding-right: 5vh;
+  padding-top: 5vh;
+  padding-bottom: 20vh;
+  width: calc(100vw - 10vh);
+  height: 40vh;
+}
+.cards__title {
+  display: inline-block;
+  padding: 3vh 2vh;
+  background-color: white;
+  border-radius: 2vh;
+  color: black;
+  border: 2px solid black;
+  font-size: 7vh;
+  margin-left: calc((100% - 78vh) / 2);
+  margin-top: 20vh;
+}
+.cards__title.black {
+  background-color: black;
+  color: white;
+  border: 2px solid white;
 }/*# sourceMappingURL=App.css.map */
