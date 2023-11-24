@@ -447,7 +447,7 @@ function Board(props) {
                             if (nextPieces[i][j] !== "  ") {
                                 let pieceThere = identifyPiece(nextPieces[i][j], i, j);
                                 if (pieceThere.side === "white") {
-                                    if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, newWhiteKingState, newBlackKingState)) {
+                                    if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState)) {
                                         foundPiecefromTeam = true;
                                         break;
                                     }
@@ -470,22 +470,31 @@ function Board(props) {
                 //variable pour voir s'il trouve une pièce alliée; en effet, s'il en trouve une, cela veut dire
                 //que le joueur peut encore agir et qu'il n'y a donc pas stalemate (le roi n'est pas check mais
                 //le joueur ne peut rien faire)
-                let foundPiecefromTeam = false;
+                copyWhiteKingState.state = "free";
 
-                for (let i = 0; i < 8; i++) {
-                    for (let j = 0; j < 8; j++) {
-                        if (pieces[i][j] !== "  " && pieces[i][j] !== "wk") {
-                            if (identifyPiece(pieces[i][j], i, j).side === "white") {
-                                copyWhiteKingState.state = "free";
-                                foundPiecefromTeam = true;
-                                break;
-                            }else{
-                                copyWhiteKingState.state = "stalemate";
+                if (action === "update") {
+                    let foundPiecefromTeam = false;
+
+                    for (let i = 0; i < 8; i++) {
+                        for (let j = 0; j < 8; j++) {
+                            if (nextPieces[i][j] !== "  " && nextPieces[i][j] !== "wk") {
+                                let pieceThere = identifyPiece(nextPieces[i][j], i, j);
+                                if (pieceThere.side === "white") {
+                                    if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState)) {
+                                        foundPiecefromTeam = true;
+                                        break;
+                                    }
+                                }
                             }
                         }
+                        if (foundPiecefromTeam === true) {
+                            break;
+                        }
                     }
-                    if (foundPiecefromTeam === true) {
-                        break;
+                    if(foundPiecefromTeam === false){
+                        copyWhiteKingState.state = "stalemate";
+                    }else{
+                        copyWhiteKingState.state = "free";
                     }
                 }
             }
@@ -514,7 +523,7 @@ function Board(props) {
                             if (nextPieces[i][j] !== "  ") {
                                 let pieceThere = identifyPiece(nextPieces[i][j], i, j);
                                 if (pieceThere.side === "black") {
-                                    if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, newWhiteKingState, newBlackKingState)) {
+                                    if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, copyBlackKingState, copyBlackKingState)) {
                                         foundPiecefromTeam = true;
                                         break;
                                     }
@@ -537,22 +546,31 @@ function Board(props) {
                 //variable pour voir s'il trouve une pièce alliée; en effet, s'il en trouve une, cela veut dire
                 //que le joueur peut encore agir et qu'il n'y a donc pas stalemate (le roi n'est pas check mais
                 //le joueur ne peut rien faire)
-                let foundPiecefromTeam = false;
-                
-                for (let i = 0; i < 8; i++) {
-                    for (let j = 0; j < 8; j++) {
-                        if (pieces[i][j] !== "  " && pieces[i][j] !== "bk") {
-                            if (identifyPiece(pieces[i][j], i, j).side === "black") {
-                                copyBlackKingState.state = "free";
-                                foundPiecefromTeam = true;
-                                break;
-                            }else{
-                                copyBlackKingState.state = "stalemate";
+                copyBlackKingState.state = "free";
+
+                if (action === "update") {
+                    let foundPiecefromTeam = false;
+
+                    for (let i = 0; i < 8; i++) {
+                        for (let j = 0; j < 8; j++) {
+                            if (nextPieces[i][j] !== "  " && nextPieces[i][j] !== "bk") {
+                                let pieceThere = identifyPiece(nextPieces[i][j], i, j);
+                                if (pieceThere.side === "black") {
+                                    if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, copyBlackKingState, copyBlackKingState)) {
+                                        foundPiecefromTeam = true;
+                                        break;
+                                    }
+                                }
                             }
                         }
+                        if (foundPiecefromTeam === true) {
+                            break;
+                        }
                     }
-                    if (foundPiecefromTeam === true) {
-                        break;
+                    if(foundPiecefromTeam === false){
+                        copyBlackKingState.state = "stalemate";
+                    }else{
+                        copyBlackKingState.state = "free";
                     }
                 }
             }
@@ -603,7 +621,7 @@ function Board(props) {
 
         return (
             <div className='cards'>
-                <p className={`cards__title ${piece.side}`}>Choisissez la promotion</p>
+                <p className={`cards__title ${piece.side}`}>Choose the promotion</p>
                 <ul className='cards__list'>
                     <li className={`card piece queen ${piece.side}`} key="queen" onClick={() => promote(pieces, piece, "q", latestWhiteKingState, latestBlackKingState)}></li>
                     <li className={`card piece rook ${piece.side}`} key="rook" onClick={() => promote(pieces, piece, "r", latestWhiteKingState, latestBlackKingState)}></li>
