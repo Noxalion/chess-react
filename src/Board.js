@@ -432,6 +432,25 @@ function Board(props) {
             }else{
                 //les cas où le roi n'est pas en échec
                 copyWhiteKingState.state = "free";
+
+                if (action === "update") {
+                    let foundPiecefromTeam = false;
+
+                    for (let i = 0; i < 8; i++) {
+                        for (let j = 0; j < 8; j++) {
+                            if (nextPieces[i][j] !== "  " && nextPieces[i][j] !== "bk" && nextPieces[i][j] !== "wk") {
+                                foundPiecefromTeam = true;
+                                break;
+                            }
+                        }
+                    }
+                    if(foundPiecefromTeam === false){
+                        copyWhiteKingState.state = "stalemate";
+                        console.log("1");
+                    }else{
+                        copyWhiteKingState.state = "free";
+                    }
+                }
             }
         }else{
             //les cas où le roi ne peut pas se déplacer
@@ -493,6 +512,7 @@ function Board(props) {
                     }
                     if(foundPiecefromTeam === false){
                         copyWhiteKingState.state = "stalemate";
+                        console.log("2");
                     }else{
                         copyWhiteKingState.state = "free";
                     }
@@ -508,6 +528,24 @@ function Board(props) {
             }else{
                 //les cas où le roi n'est pas en échec
                 copyBlackKingState.state = "free";
+
+                if (action === "update") {
+                    let foundPiecefromTeam = false;
+
+                    for (let i = 0; i < 8; i++) {
+                        for (let j = 0; j < 8; j++) {
+                            if (nextPieces[i][j] !== "  " && nextPieces[i][j] !== "bk" && nextPieces[i][j] !== "wk") {
+                                foundPiecefromTeam = true;
+                                break;
+                            }
+                        }
+                    }
+                    if(foundPiecefromTeam === false){
+                        copyBlackKingState.state = "stalemate";
+                    }else{
+                        copyBlackKingState.state = "free";
+                    }
+                }
             }
         }else{
             //les cas où le roi ne peut pas se déplacer

@@ -364,8 +364,21 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
                 let incrementToCheckCastling = 0;
     
                 //si i est inférieur à zéro, alors doit vérifier s'il peut roque avec la tour de gauche; si i est supérieur à zéro, alors doit vérifier s'il peut roque avec la tour de droite
-                if ((i < 0 && ((whiteCastlingPossibility.left && piece.side === "white") || (blackCastlingPossibility.left && piece.side === "black"))) || 
-                    (i > 0 && ((whiteCastlingPossibility.right && piece.side === "white") || (blackCastlingPossibility.right && piece.side === "black")))) {
+                if ((i < 0 && (
+                            (
+                                whiteCastlingPossibility.left && piece.side === "white" && blackAttack[pieceRow][Number(whiteKingState.coordinates.split('-')[1]) - 1] !== 'x' && blackAttack[pieceRow][Number(whiteKingState.coordinates.split('-')[1]) - 2] !== 'x'
+                            ) || (
+                                blackCastlingPossibility.left && piece.side === "black" && whiteAttack[pieceRow][Number(blackKingState.coordinates.split('-')[1]) - 1] !== 'x' && blackAttack[pieceRow][Number(blackKingState.coordinates.split('-')[1]) - 2] !== 'x'    
+                            )
+                        )    
+                    ) || (i > 0 && (
+                            (
+                                whiteCastlingPossibility.right && piece.side === "white" && blackAttack[pieceRow][Number(whiteKingState.coordinates.split('-')[1]) + 1] !== 'x' && blackAttack[pieceRow][Number(whiteKingState.coordinates.split('-')[1]) + 2] !== 'x'
+                            ) || (
+                                blackCastlingPossibility.right && piece.side === "black" && whiteAttack[pieceRow][Number(blackKingState.coordinates.split('-')[1]) + 1] !== 'x' && blackAttack[pieceRow][Number(blackKingState.coordinates.split('-')[1]) + 2] !== 'x'
+                            )
+                        )
+                    )) {
                     //check si la première pièce qu'il rencontre est bien une tour
                     do {
                         incrementToCheckCastling += i;
@@ -383,8 +396,7 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
                                 }
                             }
                         }
-                    } while (checkIfInBoard(pieceRow, horizontalMove) && pieces[pieceRow][horizontalMove] === "  " && 
-                            ((piece.side === "white" && blackAttack[pieceRow][horizontalMove] !== 'x') || (piece.side === "black" && whiteAttack[pieceRow][horizontalMove] !== 'x')));
+                    } while (checkIfInBoard(pieceRow, horizontalMove) && pieces[pieceRow][horizontalMove] === "  ");
                 }
                         
             }
