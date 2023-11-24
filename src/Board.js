@@ -135,7 +135,7 @@ function Board(props) {
 
         //boucle pour essayer toutes les possibilités de mouvements de la pièce et vérifier lesquelles ne mettent pas la pièce en échec
         for (let i = 0; i < allPossibleMoves.length; i++) {
-            let isKingSafe = goToDestination(allPossibleMoves[i], "test", piece, latestPieces, latestWhiteKingState, latestBlackKingState);
+            let isKingSafe = goToDestination(allPossibleMoves[i], "test", piece, latestPieces, lastestWhiteAttack, latestBlackAttack, latestWhiteKingState, latestBlackKingState);
             if (isKingSafe) {
                 kingSafeMoves.push(allPossibleMoves[i]);
             }
@@ -158,7 +158,7 @@ function Board(props) {
 
 
     //function appliquant le déplacement choisi de la pièce
-    function goToDestination(destination, action = "update", pieceForTest = {}, latestPieces = structuredClone(pieces), latestWhiteKingState = structuredClone(whiteKingState), latestBlackKingState = structuredClone(blackKingState)){
+    function goToDestination(destination, action = "update", pieceForTest = {}, latestPieces = structuredClone(pieces), lastestWhiteAttack = structuredClone(whiteAttack), latestBlackAttack = structuredClone(blackAttack), latestWhiteKingState = structuredClone(whiteKingState), latestBlackKingState = structuredClone(blackKingState)){
         let pieceToProcess;
         if (action === "update") {
             pieceToProcess = pieceSelected;
@@ -249,20 +249,9 @@ function Board(props) {
             setSelectionState("selectPiece");
             setPieceSelected(null);
             setPossibilitiesOfMoves([]);
-            generateNewAttack(nextPieces, latestWhiteKingState, latestBlackKingState);
-
-            console.log("white king: " + latestWhiteKingState.state);
-            console.log("coordinates: " + latestWhiteKingState.coordinates);
-            console.log("black king: " + latestBlackKingState.state);
-            console.log("coordinates: " + latestBlackKingState.coordinates);
-            console.log(" ");
-            console.log("white attacks: ");
-            console.log(whiteAttack);
-            console.log("black attacks: ");
-            console.log(blackAttack);
-            console.log("--------------------------------");
+            generateAttackAndCheck(nextPieces, latestWhiteKingState, latestBlackKingState);
         }else if(action === "test"){
-            return generateNewAttack(nextPieces, latestWhiteKingState, latestBlackKingState, "test", pieceToProcess.side);
+            return generateAttackAndCheck(nextPieces, latestWhiteKingState, latestBlackKingState, "test", lastestWhiteAttack, latestBlackAttack, pieceToProcess.side);
         }
     }
 
@@ -325,7 +314,7 @@ function Board(props) {
         setSelectionState("selectPiece");
         setPieceSelected(null);
         setPossibilitiesOfMoves([]);
-        generateNewAttack(nextPieces, copyWhiteKingState, copyBlackKingState);
+        generateAttackAndCheck(nextPieces, copyWhiteKingState, copyBlackKingState);
     }
        
     
@@ -360,18 +349,18 @@ function Board(props) {
 
 
     //function pour update les tableaux d'attaques de chaque équipe
-    function generateNewAttack(nextPieces, newWhiteKingState, newBlackKingState, action = "update", teamForTest = "none"){
+    function generateAttackAndCheck(nextPieces, newWhiteKingState, newBlackKingState, action = "update", lastestWhiteAttack = structuredClone(whiteAttack), latestBlackAttack = structuredClone(blackAttack), teamForTest = "none"){
         
         //copie de l'état du roi de chaque équipe
         let copyWhiteKingState = newWhiteKingState;
         let copyBlackKingState = newBlackKingState;
 
         //copie du tableau des cases attaqués par chaque camp
-        const nextWhiteAttack = whiteAttack.slice();
-        const nextBlackAttack = blackAttack.slice();
+        const nextWhiteAttack = lastestWhiteAttack.slice();
+        const nextBlackAttack = latestBlackAttack.slice();
         for (let i = 0; i < 8; i++) {
-            nextWhiteAttack[i] = whiteAttack[i].slice();
-            nextBlackAttack[i] = blackAttack[i].slice();
+            nextWhiteAttack[i] = lastestWhiteAttack[i].slice();
+            nextBlackAttack[i] = latestBlackAttack[i].slice();
         }
 
         for (let i = 0; i < 8; i++) {
@@ -448,6 +437,8 @@ function Board(props) {
                     }
                     if(foundPiecefromTeam === false){
                         copyWhiteKingState.state = "checkmate";
+                    }else{
+                        copyWhiteKingState.state = "check";
                     }
                 }
             }else{
@@ -513,6 +504,8 @@ function Board(props) {
                     }
                     if(foundPiecefromTeam === false){
                         copyBlackKingState.state = "checkmate";
+                    }else{
+                        copyBlackKingState.state = "check";
                     }
                 }
             }else{
