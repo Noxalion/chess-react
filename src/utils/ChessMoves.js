@@ -368,14 +368,14 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
                             (
                                 whiteCastlingPossibility.left && piece.side === "white" && blackAttack[pieceRow][Number(whiteKingState.coordinates.split('-')[1]) - 1] !== 'x' && blackAttack[pieceRow][Number(whiteKingState.coordinates.split('-')[1]) - 2] !== 'x'
                             ) || (
-                                blackCastlingPossibility.left && piece.side === "black" && whiteAttack[pieceRow][Number(blackKingState.coordinates.split('-')[1]) - 1] !== 'x' && blackAttack[pieceRow][Number(blackKingState.coordinates.split('-')[1]) - 2] !== 'x'    
+                                blackCastlingPossibility.left && piece.side === "black" && whiteAttack[pieceRow][Number(blackKingState.coordinates.split('-')[1]) - 1] !== 'x' && whiteAttack[pieceRow][Number(blackKingState.coordinates.split('-')[1]) - 2] !== 'x'    
                             )
                         )    
                     ) || (i > 0 && (
                             (
                                 whiteCastlingPossibility.right && piece.side === "white" && blackAttack[pieceRow][Number(whiteKingState.coordinates.split('-')[1]) + 1] !== 'x' && blackAttack[pieceRow][Number(whiteKingState.coordinates.split('-')[1]) + 2] !== 'x'
                             ) || (
-                                blackCastlingPossibility.right && piece.side === "black" && whiteAttack[pieceRow][Number(blackKingState.coordinates.split('-')[1]) + 1] !== 'x' && blackAttack[pieceRow][Number(blackKingState.coordinates.split('-')[1]) + 2] !== 'x'
+                                blackCastlingPossibility.right && piece.side === "black" && whiteAttack[pieceRow][Number(blackKingState.coordinates.split('-')[1]) + 1] !== 'x' && whiteAttack[pieceRow][Number(blackKingState.coordinates.split('-')[1]) + 2] !== 'x'
                             )
                         )
                     )) {

@@ -146,9 +146,16 @@ function Board(props) {
 
         //boucle pour essayer toutes les possibilités de mouvements de la pièce et vérifier lesquelles ne mettent pas la pièce en échec
         for (let i = 0; i < allPossibleMoves.length; i++) {
-            let isKingSafe = goToDestination(allPossibleMoves[i], "test", piece, latestPieces, lastestWhiteAttack, latestBlackAttack, latestWhiteKingState, latestBlackKingState);
-            if (isKingSafe) {
+            if (piece.name === "king") {
+                //pour les mouvements du roi, prenant déjà en comptre le faite qu'il ne doit pas être en échec et surtout, permet de roque
+                // dans certaines situations car le système de prédiciton pour voir si le roi est en échec ou pas ne fonctionne pas avec le roque 
+                //mais les conditions que celui-ci impose fait que de toutes façon, si l'on peut roque, c'est que le roi n'est pas en échec en fin de roque
                 kingSafeMoves.push(allPossibleMoves[i]);
+            }else{
+                let isKingSafe = goToDestination(allPossibleMoves[i], "test", piece, latestPieces, lastestWhiteAttack, latestBlackAttack, latestWhiteKingState, latestBlackKingState);
+                if (isKingSafe) {
+                    kingSafeMoves.push(allPossibleMoves[i]);
+                }
             }
         }
 
@@ -446,7 +453,6 @@ function Board(props) {
                     }
                     if(foundPiecefromTeam === false){
                         copyWhiteKingState.state = "stalemate";
-                        console.log("1");
                     }else{
                         copyWhiteKingState.state = "free";
                     }
@@ -485,10 +491,6 @@ function Board(props) {
                 }
             }else{
                 //les cas où le roi n'est pas en échec
-
-                //variable pour voir s'il trouve une pièce alliée; en effet, s'il en trouve une, cela veut dire
-                //que le joueur peut encore agir et qu'il n'y a donc pas stalemate (le roi n'est pas check mais
-                //le joueur ne peut rien faire)
                 copyWhiteKingState.state = "free";
 
                 if (action === "update") {
@@ -512,7 +514,6 @@ function Board(props) {
                     }
                     if(foundPiecefromTeam === false){
                         copyWhiteKingState.state = "stalemate";
-                        console.log("2");
                     }else{
                         copyWhiteKingState.state = "free";
                     }
@@ -580,10 +581,6 @@ function Board(props) {
                 }
             }else{
                 //les cas où le roi n'est pas en échec
-
-                //variable pour voir s'il trouve une pièce alliée; en effet, s'il en trouve une, cela veut dire
-                //que le joueur peut encore agir et qu'il n'y a donc pas stalemate (le roi n'est pas check mais
-                //le joueur ne peut rien faire)
                 copyBlackKingState.state = "free";
 
                 if (action === "update") {
