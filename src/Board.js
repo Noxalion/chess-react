@@ -22,7 +22,10 @@ function Board(props) {
         finishTurn,
         teamTurn,
         setDisplayPromotion,
-        displayPromotion
+        displayPromotion,
+        previousMove,
+        setPreviousMove,
+        highlight
     } = props;
     
     let squares = [];
@@ -55,6 +58,8 @@ function Board(props) {
                     possibilitiesOfMoves={possibilitiesOfMoves}
                     whiteKingState={whiteKingState}
                     blackKingState={blackKingState}
+                    previousMove={previousMove}
+                    highlight={highlight}
                 ></Square>
             );
         }
@@ -63,7 +68,7 @@ function Board(props) {
     //rendu du jeu (avec les cartes de promotions s'il y a une promotion à faire et les cases du plateau avec les pièces s'il y en a une dessus)
     return (
         <>
-            {displayPromotion && <PromotionCards /*piece={pieceSelected} pieces={pieces} latestWhiteKingState={whiteKingState} latestBlackKingState={blackKingState}*/ />}
+            {displayPromotion && <PromotionCards />}
             <ul className="game__el board">
                {squares}
             </ul>
@@ -266,6 +271,7 @@ function Board(props) {
             setPieces(nextPieces);
             setPossibilitiesOfMoves([]);
             setSelectionState("selectPiece");
+            setPreviousMove([pieceToProcess.side, pieceToProcess.name, pieceToProcess.coordinates, destination]);
 
             //si un pion arrive sur une case du coté adverse, il est alors promu; sinon, refresh la pièce selectionnée et les tableaux d'attaques
             if (pieceToProcess.name === "pawn" && ((pieceToProcess.side === "white" && Number(finishCoordinates[0]) === 7) || (pieceToProcess.side === "black" && Number(finishCoordinates[0]) === 0))) {
@@ -595,7 +601,7 @@ function Board(props) {
 
 
 //function caractérisant une case
-function Square({position, color, onSquareClick, row, column,identifyPiece, pieceOnSquare, pieceSelected, possibilitiesOfMoves, whiteKingState, blackKingState}){
+function Square({position, color, onSquareClick, row, column,identifyPiece, pieceOnSquare, pieceSelected, possibilitiesOfMoves, whiteKingState, blackKingState, previousMove, highlight}){
 
     let effectOnSquare = "square--noEffect";
 
@@ -603,6 +609,10 @@ function Square({position, color, onSquareClick, row, column,identifyPiece, piec
         effectOnSquare = "square--selected";
     }else if (possibilitiesOfMoves.includes(row + '-' + column)) {
         effectOnSquare = "square--possibility";
+    }else if (previousMove[2] === row + '-' + column && highlight) {
+        effectOnSquare = "square--previousMoveOrigin";
+    }else if (previousMove[3] === row + '-' + column && highlight) {
+        effectOnSquare = "square--previousMoveDestination";
     }else if((whiteKingState.state === "check" && whiteKingState.coordinates === row + '-' + column) || (blackKingState.state === "check" && blackKingState.coordinates === row + '-' + column)){
         effectOnSquare = "square--check";
     }else if((whiteKingState.state === "checkmate" && whiteKingState.coordinates === row + '-' + column) || (blackKingState.state === "checkmate" && blackKingState.coordinates === row + '-' + column)){

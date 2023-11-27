@@ -11,7 +11,7 @@ ul {
 .game__el {
   position: absolute;
   top: 10vh;
-  left: calc((100vw - 80vh) / 2);
+  left: calc((100vw - 100vh) / 2);
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
@@ -22,7 +22,7 @@ ul {
 .column-number {
   position: absolute;
   top: 5vh;
-  left: calc((100vw - 80vh) / 2);
+  left: calc((100vw - 100vh) / 2);
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   width: 80vh;
@@ -34,7 +34,7 @@ ul {
 .row-number {
   position: absolute;
   top: 10vh;
-  left: calc((100vw - 80vh) / 2 - 10vh - 12px);
+  left: calc((100vw - 100vh) / 2 - 10vh - 12px);
   display: grid;
   grid-template-columns: 1;
   grid-template-rows: repeat(8, 1fr);
@@ -124,6 +124,30 @@ ul {
   background-color: purple;
   opacity: 80%;
 }
+.square--previousMoveOrigin {
+  position: relative;
+}
+.square--previousMoveOrigin::before {
+  content: "";
+  font-size: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: rgb(117, 3, 117);
+}
+.square--previousMoveDestination {
+  position: relative;
+}
+.square--previousMoveDestination::before {
+  content: "";
+  font-size: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border: 5px solid rgb(231, 0, 231);
+}
 
 .piece {
   position: relative;
@@ -192,14 +216,38 @@ ul {
   border: 2px black solid;
   border-radius: 2vh;
   padding: 1vh 2vh;
-  top: 91.5vh;
-  left: calc((100vw - 54vh) / 2);
+  top: 10vh;
+  left: calc((100vw - 100vh) / 2 + 83vh);
+  max-width: 25vh;
   font-size: 5vh;
 }
 .turn--black {
   border: 2px white solid;
   background-color: black;
   color: white;
+}
+
+.previousMove {
+  position: absolute;
+  border: 2px rgb(117, 3, 117) solid;
+  border-radius: 2vh;
+  padding: 1vh 2vh;
+  top: 32vh;
+  left: calc((100vw - 100vh) / 2 + 83vh);
+  max-width: 28vh;
+  font-size: 2.5vh;
+}
+.previousMove__title {
+  font-size: 3.5vh;
+  color: rgb(117, 3, 117);
+  border-bottom: 2px solid black;
+  margin-bottom: 2vh;
+}
+.previousMove--highlight {
+  border: 2px rgb(231, 0, 231) solid;
+}
+.previousMove--highlight .previousMove__title {
+  color: rgb(231, 0, 231);
 }
 
 .card {

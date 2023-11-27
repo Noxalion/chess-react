@@ -108,6 +108,56 @@ function Game() {
     //pour afficher ou non les cartes de promotion
     const [displayPromotion, setDisplayPromotion] = useState(false);
 
+    //pour enregistrer le coup précédent
+    const [previousMove, setPreviousMove] = useState([]);
+
+    //pour savoir si le mouvement précédent doit être highlight ou pas
+    const [highlight, setHighlight] = useState(false);
+
+    //function pour render le move précédent
+    function PreviousMoveDisplay(){
+        //pour que les coordonnées soient présenté correctement par rapport au plateau et plus par rapport aux tableaux du code
+        let rowMatching = {
+            0: "A",
+            1: "B",
+            2: "C",
+            3: "D",
+            4: "E",
+            5: "F",
+            6: "G",
+            7: "H",
+        };
+
+        let originRow = previousMove[2].split('-')[0];
+        let originColumn = Number(previousMove[2].split('-')[1]);
+        let origin = rowMatching[originRow] + (originColumn + 1);
+
+        let destinationRow = previousMove[3].split('-')[0];
+        let destinationColumn = Number(previousMove[3].split('-')[1]);
+        let destination = rowMatching[destinationRow] + (destinationColumn + 1);
+
+        //les classes du "bouton" pour highlight le move précédent
+        const [classesPreviousMove, setClassesPreviousMove] = useState("previousMove");
+        
+        //function pour update au hover les classes du highlight
+        function highlightMouseOver(){
+            setClassesPreviousMove("previousMove previousMove--highlight");
+            setHighlight(true);
+        }
+
+        function highlightMouseOut(){
+            setClassesPreviousMove("previousMove");
+            setHighlight(false);
+        }
+        
+        return (
+            <div className={classesPreviousMove} onMouseOver={highlightMouseOver} onMouseOut={highlightMouseOut}>
+                <h2 className='previousMove__title'>Previous Move</h2>
+                <p className='previousMove__info'>{`${previousMove[0]} ${previousMove[1]} ${origin} --> ${destination}`}</p>
+            </div>
+        );
+    }
+
 
     //le rendu du plateau de jeu
     return (
@@ -166,7 +216,12 @@ function Game() {
 
                 setDisplayPromotion={setDisplayPromotion}
                 displayPromotion={displayPromotion}
+
+                previousMove={previousMove}
+                setPreviousMove={setPreviousMove}
+                highlight={highlight}
             />
+            {previousMove.length !== 0 && <PreviousMoveDisplay />}
         </div>
     );
 }
