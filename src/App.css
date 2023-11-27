@@ -249,6 +249,12 @@ ul {
 .previousMove--highlight .previousMove__title {
   color: rgb(231, 0, 231);
 }
+.previousMove__special {
+  color: rgb(103, 2, 103);
+}
+.previousMove__check {
+  color: rgb(223, 3, 3);
+}
 
 .card {
   border-radius: 2vh;

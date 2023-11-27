@@ -1,4 +1,4 @@
-function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState, whatToCheck = "MoveAndAttack"){
+function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, whiteAttack, blackAttack, whiteKingState, blackKingState, previousMove, whatToCheck = "MoveAndAttack"){
     //le paramètre whatToCheck permet de savoir si l'on doit vérifier les mouvements ("MoveAndAttack" et donc renvois les mouvements et possibilités de prise) 
     //ou juste les possibilités d'attaques ("onlyAttack" et donc là où une pièce peut en prendre d'autres, doit donc spécifier aussi quand s'arrête sur une pièce alliée pour la protéger)
 
@@ -86,6 +86,15 @@ function ChessMoves(piece, pieces,identifyPiece, whiteCastlingPossibility, black
                         }
                     }
                 }else if(pieces[verticalToTake][horizontalToTake] === "  " && whatToCheck === "onlyAttack"){
+                    let possibility = setPossibility(pieceRow, pieceColumn, additionFactor, i);
+                    if (possibility) {
+                        moves.push(possibility);
+                    }
+                }else if(pieces[pieceRow][horizontalToTake] !== "  " && (previousMove.length !== 0 && Number(previousMove[3].split('-')[1]) === horizontalToTake
+                    && ((Number(previousMove[3].split('-')[0]) === 3 && Number(previousMove[2].split('-')[0]) === 1 && previousMove[0] === "white" && previousMove[1] === "pawn" && piece.side === "black" && pieceRow === 3) 
+                    || (Number(previousMove[3].split('-')[0]) === 4 && Number(previousMove[2].split('-')[0]) === 6 && previousMove[0] === "black" && previousMove[1] === "pawn" && piece.side === "white" && pieceRow === 4)))
+                ){
+                    //ceci est pour pouvoir exécuter un "en passant"
                     let possibility = setPossibility(pieceRow, pieceColumn, additionFactor, i);
                     if (possibility) {
                         moves.push(possibility);

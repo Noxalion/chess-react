@@ -103,6 +103,7 @@ function Game() {
         newTurn++;
         checkGameState(latestWhiteKingState, latestBlackKingState);
         setTurn(newTurn);
+        console.log(blackAttack);
     }
 
     //pour afficher ou non les cartes de promotion
@@ -110,6 +111,11 @@ function Game() {
 
     //pour enregistrer le coup précédent
     const [previousMove, setPreviousMove] = useState([]);
+        //previousMove[0] est pour la team
+        //previousMove[1] est pour le type de pièce
+        //previousMove[2] est pour les coordonnées d'origine
+        //previousMove[3] est pour les coordonnées de destination
+        //previousMove[4] et previousMove[4] sont pour si prends une pièce ou coup spécial
 
     //pour savoir si le mouvement précédent doit être highlight ou pas
     const [highlight, setHighlight] = useState(false);
@@ -117,7 +123,7 @@ function Game() {
     //function pour render le move précédent
     function PreviousMoveDisplay(){
         //pour que les coordonnées soient présenté correctement par rapport au plateau et plus par rapport aux tableaux du code
-        let rowMatching = {
+        let ColumnMatching = {
             0: "A",
             1: "B",
             2: "C",
@@ -128,13 +134,13 @@ function Game() {
             7: "H",
         };
 
-        let originRow = previousMove[2].split('-')[0];
-        let originColumn = Number(previousMove[2].split('-')[1]);
-        let origin = rowMatching[originRow] + (originColumn + 1);
+        let originRow = Number(previousMove[2].split('-')[0]);
+        let originColumn = previousMove[2].split('-')[1];
+        let origin = ColumnMatching[originColumn] + (originRow + 1);
 
-        let destinationRow = previousMove[3].split('-')[0];
-        let destinationColumn = Number(previousMove[3].split('-')[1]);
-        let destination = rowMatching[destinationRow] + (destinationColumn + 1);
+        let destinationRow = Number(previousMove[3].split('-')[0]);
+        let destinationColumn = previousMove[3].split('-')[1];
+        let destination = ColumnMatching[destinationColumn] + (destinationRow + 1);
 
         //les classes du "bouton" pour highlight le move précédent
         const [classesPreviousMove, setClassesPreviousMove] = useState("previousMove");
@@ -149,11 +155,46 @@ function Game() {
             setClassesPreviousMove("previousMove");
             setHighlight(false);
         }
+
+        //description supp du move
+        let specialInfo;
+        if (previousMove[4] && previousMove[5]) {
+            if (previousMove[4] === "took") {
+                specialInfo = `took ${previousMove[5].name}`;
+
+            }else if(previousMove[4] === "en passant") {
+                let pieceTakenRow = Number(previousMove[5][3].split('-')[0]);
+                let pieceTakenColumn = previousMove[5][3].split('-')[1];
+                let pieceTakenCoordinates = ColumnMatching[pieceTakenColumn] + (pieceTakenRow + 1);
+
+                specialInfo = `en passant took ${previousMove[5][1]} ${pieceTakenCoordinates}`;
+
+            }else if(previousMove[4] === "castling") {
+                let rookRow = Number(previousMove[5][0]);
+                let rookColumn = previousMove[5][1];
+                let rookCoordinates = ColumnMatching[rookColumn] + (rookRow + 1);
+
+                specialInfo = `castling with rook ${rookCoordinates}`;
+            }
+        }
+
+        let whiteKingMessage;
+        if (whiteKingState.state === "check") {
+            whiteKingMessage = `white king check`;
+        }
+
+        let blackKingMessage;
+        if (blackKingState.state === "check") {
+            blackKingMessage = `black king check`;
+        }
         
         return (
             <div className={classesPreviousMove} onMouseOver={highlightMouseOver} onMouseOut={highlightMouseOut}>
                 <h2 className='previousMove__title'>Previous Move</h2>
-                <p className='previousMove__info'>{`${previousMove[0]} ${previousMove[1]} ${origin} --> ${destination}`}</p>
+                <p className='previousMove__info'>{`${previousMove[0]} ${previousMove[1]} ${origin} to ${destination}`}</p>
+                <p className='previousMove__special'>{specialInfo}</p>
+                <p className='previousMove__check'>{whiteKingMessage}</p>
+                <p className='previousMove__check'>{blackKingMessage}</p>
             </div>
         );
     }
@@ -221,7 +262,7 @@ function Game() {
                 setPreviousMove={setPreviousMove}
                 highlight={highlight}
             />
-            {previousMove.length !== 0 && <PreviousMoveDisplay />}
+            {previousMove.length !==0 && <PreviousMoveDisplay />}
         </div>
     );
 }

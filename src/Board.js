@@ -147,7 +147,7 @@ function Board(props) {
         //tableau des possibilités qui ne mettent pas son propre roi en échec
         let kingSafeMoves = [];
         //tableau de toutes les possibilités que la pièce peut faire normalement
-        let allPossibleMoves = ChessMoves(piece, latestPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, lastestWhiteAttack, latestBlackAttack, latestWhiteKingState, latestBlackKingState);
+        let allPossibleMoves = ChessMoves(piece, latestPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, lastestWhiteAttack, latestBlackAttack, latestWhiteKingState, latestBlackKingState, previousMove);
 
         //boucle pour essayer toutes les possibilités de mouvements de la pièce et vérifier lesquelles ne mettent pas la pièce en échec
         for (let i = 0; i < allPossibleMoves.length; i++) {
@@ -261,17 +261,41 @@ function Board(props) {
             nextPieces[i] = latestPieces[i].slice();
         }
         
-
+        let pieceTaken;
         let squareOfStart = nextPieces[startingCoordinates[0]][startingCoordinates[1]];
         nextPieces[startingCoordinates[0]][startingCoordinates[1]] = "  ";
+        if (nextPieces[finishCoordinates[0]][finishCoordinates[1]] !== "  ") {
+            pieceTaken = identifyPiece(nextPieces[finishCoordinates[0]][finishCoordinates[1]], finishCoordinates[0], finishCoordinates[1]);
+        }
         nextPieces[finishCoordinates[0]][finishCoordinates[1]] = squareOfStart;
+
+        //pour réaliser un "en passant"
+        if(pieceToProcess.name === "pawn"
+            && (Number(finishCoordinates[1]) === Number(startingCoordinates[1]) + 1 || Number(finishCoordinates[1]) === Number(startingCoordinates[1]) - 1) && previousMove.length !== 0 
+            && ((Number(previousMove[3].split('-')[0]) === 3 && previousMove[0] === "white" && previousMove[1] === "pawn" && pieceToProcess.side === "black" && Number(startingCoordinates[0]) === 3) 
+            || (Number(previousMove[3].split('-')[0]) === 4 && previousMove[0] === "black" && previousMove[1] === "pawn" && pieceToProcess.side === "white" && Number(startingCoordinates[0]) === 4))
+        ){
+            nextPieces[previousMove[3].split('-')[0]][previousMove[3].split('-')[1]] = "  ";
+        }
+
 
         if (action === "update") {
             //update du tableau de jeu et reset des paramètres de selection (pour pouvoir rechoisir une pièce)
             setPieces(nextPieces);
             setPossibilitiesOfMoves([]);
             setSelectionState("selectPiece");
-            setPreviousMove([pieceToProcess.side, pieceToProcess.name, pieceToProcess.coordinates, destination]);
+            if (pieceToProcess.name === "pawn" && pieces[finishCoordinates[0]][finishCoordinates[1]] === "  " 
+                && (Number(finishCoordinates[1]) === Number(startingCoordinates[1]) + 1 || Number(finishCoordinates[1]) === Number(startingCoordinates[1]) - 1) && previousMove.length !== 0 
+                && ((Number(previousMove[3].split('-')[0]) === 3 && previousMove[0] === "white" && previousMove[1] === "pawn" && pieceToProcess.side === "black" && Number(startingCoordinates[0]) === 3) 
+                || (Number(previousMove[3].split('-')[0]) === 4 && previousMove[0] === "black" && previousMove[1] === "pawn" && pieceToProcess.side === "white" && Number(startingCoordinates[0]) === 4))
+            ){
+                setPreviousMove([pieceToProcess.side, pieceToProcess.name, pieceToProcess.coordinates, destination, "en passant", previousMove]);
+            }else if(pieceTaken){
+                setPreviousMove([pieceToProcess.side, pieceToProcess.name, pieceToProcess.coordinates, destination, "took", pieceTaken]);
+            }else{
+                setPreviousMove([pieceToProcess.side, pieceToProcess.name, pieceToProcess.coordinates, destination]);
+            }
+            
 
             //si un pion arrive sur une case du coté adverse, il est alors promu; sinon, refresh la pièce selectionnée et les tableaux d'attaques
             if (pieceToProcess.name === "pawn" && ((pieceToProcess.side === "white" && Number(finishCoordinates[0]) === 7) || (pieceToProcess.side === "black" && Number(finishCoordinates[0]) === 0))) {
@@ -351,6 +375,7 @@ function Board(props) {
         setPieceSelected(null);
         setPossibilitiesOfMoves([]);
         generateAttackAndCheck(nextPieces, copyWhiteKingState, copyBlackKingState);
+        setPreviousMove([pieceSelected.side, pieceSelected.name, pieceSelected.coordinates, kingStartingCoordinates[0] + '-' + kingEndCoordinateX, "castling", rookStartingCoordinates]);
     }
        
     
@@ -413,7 +438,7 @@ function Board(props) {
                 if (nextPieces[i][j] !== "  ") {
                     //identifie la pièce et ses possibilités d'attaques
                     let pieceThere = identifyPiece(nextPieces[i][j], i, j);
-                    let attackPossibility = ChessMoves(pieceThere, nextPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState, "onlyAttack");
+                    let attackPossibility = ChessMoves(pieceThere, nextPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState, previousMove, "onlyAttack");
 
                     //ajoute les possibilités d'attaques au tableau de l'équipe de la pièce
                     if (pieceThere.side === "white") {
@@ -455,7 +480,7 @@ function Board(props) {
             
 
             //check si les rois sont en échec, en échec et mat ou autres
-            if (ChessMoves(kingToLook, nextPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState).length !== 0) {
+            if (ChessMoves(kingToLook, nextPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState, previousMove).length !== 0) {
                 //les cas où le roi peut se déplacer
                 if (attackToLook[kingToLook.coordinates.split('-')[0]][kingToLook.coordinates.split('-')[1]] === "x") {
                     //les cas où le roi est en échec
