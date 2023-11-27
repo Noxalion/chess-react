@@ -430,186 +430,116 @@ function Board(props) {
         }
         
 
-        //check si les rois sont en échec, en échec et mat ou autres
-        if (ChessMoves(copyWhiteKingState, nextPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState).length !== 0) {
-            //les cas où le roi peut se déplacer
-            if (nextBlackAttack[copyWhiteKingState.coordinates.split('-')[0]][copyWhiteKingState.coordinates.split('-')[1]] === "x") {
-                //les cas où le roi est en échec
-                copyWhiteKingState.state = "check";
+        let kingToLook;
+        let attackToLook;
+        let kingNotationToLook;
+        let teamToLook;
+        for (let i = 0; i < 2; i++) {
+            if (i === 0) {
+                kingToLook = copyWhiteKingState;
+                attackToLook = nextBlackAttack;
+                kingNotationToLook = "wk";
+                teamToLook = "white";
             }else{
-                //les cas où le roi n'est pas en échec
-                copyWhiteKingState.state = "free";
+                kingToLook = copyBlackKingState;
+                attackToLook = nextWhiteAttack;
+                kingNotationToLook = "bk";
+                teamToLook = "black";
+            }
+            
 
-                if (action === "update") {
-                    let foundPiecefromTeam = false;
-
-                    for (let i = 0; i < 8; i++) {
-                        for (let j = 0; j < 8; j++) {
-                            if (nextPieces[i][j] !== "  " && nextPieces[i][j] !== "bk" && nextPieces[i][j] !== "wk") {
-                                foundPiecefromTeam = true;
+            //check si les rois sont en échec, en échec et mat ou autres
+            if (ChessMoves(kingToLook, nextPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState).length !== 0) {
+                //les cas où le roi peut se déplacer
+                if (attackToLook[kingToLook.coordinates.split('-')[0]][kingToLook.coordinates.split('-')[1]] === "x") {
+                    //les cas où le roi est en échec
+                    kingToLook.state = "check";
+                }else{
+                    //les cas où le roi n'est pas en échec
+                    kingToLook.state = "free";
+    
+                    if (action === "update") {
+                        let foundPiecefromTeam = false;
+    
+                        for (let i = 0; i < 8; i++) {
+                            for (let j = 0; j < 8; j++) {
+                                if (nextPieces[i][j] !== "  " && nextPieces[i][j] !== "bk" && nextPieces[i][j] !== "wk") {
+                                    foundPiecefromTeam = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if(foundPiecefromTeam === false){
+                            kingToLook.state = "stalemate";
+                        }else{
+                            kingToLook.state = "free";
+                        }
+                    }
+                }
+            }else{
+                //les cas où le roi ne peut pas se déplacer
+                if (attackToLook[kingToLook.coordinates.split('-')[0]][kingToLook.coordinates.split('-')[1]] === "x") {
+                    //les cas où le roi est en échec
+                    kingToLook.state = "check";
+    
+                    if (action === "update") {
+                        let foundPiecefromTeam = false;
+    
+                        for (let i = 0; i < 8; i++) {
+                            for (let j = 0; j < 8; j++) {
+                                if (nextPieces[i][j] !== "  ") {
+                                    let pieceThere = identifyPiece(nextPieces[i][j], i, j);
+                                    if (pieceThere.side === teamToLook) {
+                                        if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState)) {
+                                            foundPiecefromTeam = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (foundPiecefromTeam === true) {
                                 break;
                             }
                         }
+                        if(foundPiecefromTeam === false){
+                            kingToLook.state = "checkmate";
+                        }else{
+                            kingToLook.state = "check";
+                        }
                     }
-                    if(foundPiecefromTeam === false){
-                        copyWhiteKingState.state = "stalemate";
-                    }else{
-                        copyWhiteKingState.state = "free";
-                    }
-                }
-            }
-        }else{
-            //les cas où le roi ne peut pas se déplacer
-            if (nextBlackAttack[copyWhiteKingState.coordinates.split('-')[0]][copyWhiteKingState.coordinates.split('-')[1]] === "x") {
-                //les cas où le roi est en échec
-                copyWhiteKingState.state = "check";
-
-                if (action === "update") {
-                    let foundPiecefromTeam = false;
-
-                    for (let i = 0; i < 8; i++) {
-                        for (let j = 0; j < 8; j++) {
-                            if (nextPieces[i][j] !== "  ") {
-                                let pieceThere = identifyPiece(nextPieces[i][j], i, j);
-                                if (pieceThere.side === "white") {
-                                    if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState)) {
-                                        foundPiecefromTeam = true;
-                                        break;
+                }else{
+                    //les cas où le roi n'est pas en échec
+                    kingToLook.state = "free";
+    
+                    if (action === "update") {
+                        let foundPiecefromTeam = false;
+    
+                        for (let i = 0; i < 8; i++) {
+                            for (let j = 0; j < 8; j++) {
+                                if (nextPieces[i][j] !== "  " && nextPieces[i][j] !== kingNotationToLook) {
+                                    let pieceThere = identifyPiece(nextPieces[i][j], i, j);
+                                    if (pieceThere.side === teamToLook) {
+                                        if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState)) {
+                                            foundPiecefromTeam = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
-                        }
-                        if (foundPiecefromTeam === true) {
-                            break;
-                        }
-                    }
-                    if(foundPiecefromTeam === false){
-                        copyWhiteKingState.state = "checkmate";
-                    }else{
-                        copyWhiteKingState.state = "check";
-                    }
-                }
-            }else{
-                //les cas où le roi n'est pas en échec
-                copyWhiteKingState.state = "free";
-
-                if (action === "update") {
-                    let foundPiecefromTeam = false;
-
-                    for (let i = 0; i < 8; i++) {
-                        for (let j = 0; j < 8; j++) {
-                            if (nextPieces[i][j] !== "  " && nextPieces[i][j] !== "wk") {
-                                let pieceThere = identifyPiece(nextPieces[i][j], i, j);
-                                if (pieceThere.side === "white") {
-                                    if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState)) {
-                                        foundPiecefromTeam = true;
-                                        break;
-                                    }
-                                }
+                            if (foundPiecefromTeam === true) {
+                                break;
                             }
                         }
-                        if (foundPiecefromTeam === true) {
-                            break;
+                        if(foundPiecefromTeam === false){
+                            kingToLook.state = "stalemate";
+                        }else{
+                            kingToLook.state = "free";
                         }
-                    }
-                    if(foundPiecefromTeam === false){
-                        copyWhiteKingState.state = "stalemate";
-                    }else{
-                        copyWhiteKingState.state = "free";
                     }
                 }
             }
         }
 
-        if (ChessMoves(copyBlackKingState, nextPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState).length !== 0) {
-            //les cas où le roi peut se déplacer
-            if (nextWhiteAttack[copyBlackKingState.coordinates.split('-')[0]][copyBlackKingState.coordinates.split('-')[1]] === "x") {
-                //les cas où le roi est en échec
-                copyBlackKingState.state = "check";
-            }else{
-                //les cas où le roi n'est pas en échec
-                copyBlackKingState.state = "free";
-
-                if (action === "update") {
-                    let foundPiecefromTeam = false;
-
-                    for (let i = 0; i < 8; i++) {
-                        for (let j = 0; j < 8; j++) {
-                            if (nextPieces[i][j] !== "  " && nextPieces[i][j] !== "bk" && nextPieces[i][j] !== "wk") {
-                                foundPiecefromTeam = true;
-                                break;
-                            }
-                        }
-                    }
-                    if(foundPiecefromTeam === false){
-                        copyBlackKingState.state = "stalemate";
-                    }else{
-                        copyBlackKingState.state = "free";
-                    }
-                }
-            }
-        }else{
-            //les cas où le roi ne peut pas se déplacer
-            if (nextWhiteAttack[copyBlackKingState.coordinates.split('-')[0]][copyBlackKingState.coordinates.split('-')[1]] === "x") {
-                //les cas où le roi est en échec
-                copyBlackKingState.state = "check";
-
-                if (action === "update") {
-                    let foundPiecefromTeam = false;
-
-                    for (let i = 0; i < 8; i++) {
-                        for (let j = 0; j < 8; j++) {
-                            if (nextPieces[i][j] !== "  ") {
-                                let pieceThere = identifyPiece(nextPieces[i][j], i, j);
-                                if (pieceThere.side === "black") {
-                                    if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, copyBlackKingState, copyBlackKingState)) {
-                                        foundPiecefromTeam = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        if (foundPiecefromTeam === true) {
-                            break;
-                        }
-                    }
-                    if(foundPiecefromTeam === false){
-                        copyBlackKingState.state = "checkmate";
-                    }else{
-                        copyBlackKingState.state = "check";
-                    }
-                }
-            }else{
-                //les cas où le roi n'est pas en échec
-                copyBlackKingState.state = "free";
-
-                if (action === "update") {
-                    let foundPiecefromTeam = false;
-
-                    for (let i = 0; i < 8; i++) {
-                        for (let j = 0; j < 8; j++) {
-                            if (nextPieces[i][j] !== "  " && nextPieces[i][j] !== "bk") {
-                                let pieceThere = identifyPiece(nextPieces[i][j], i, j);
-                                if (pieceThere.side === "black") {
-                                    if (setPieceToMove(pieceThere, "test", nextPieces, nextWhiteAttack, nextBlackAttack, copyBlackKingState, copyBlackKingState)) {
-                                        foundPiecefromTeam = true;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        if (foundPiecefromTeam === true) {
-                            break;
-                        }
-                    }
-                    if(foundPiecefromTeam === false){
-                        copyBlackKingState.state = "stalemate";
-                    }else{
-                        copyBlackKingState.state = "free";
-                    }
-                }
-            }
-        }
 
         if (action === "update") {
             //set les nouveaux tableaux d'attaques pour les deux équipes
