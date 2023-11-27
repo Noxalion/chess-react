@@ -63,7 +63,7 @@ function Board(props) {
     //rendu du jeu (avec les cartes de promotions s'il y a une promotion à faire et les cases du plateau avec les pièces s'il y en a une dessus)
     return (
         <>
-            {displayPromotion && <PromotionCards piece={pieceSelected} pieces={pieces} latestWhiteKingState={whiteKingState} latestBlackKingState={blackKingState} />}
+            {displayPromotion && <PromotionCards /*piece={pieceSelected} pieces={pieces} latestWhiteKingState={whiteKingState} latestBlackKingState={blackKingState}*/ />}
             <ul className="game__el board">
                {squares}
             </ul>
@@ -564,35 +564,28 @@ function Board(props) {
 
 
     //function pour promouvoir une pièce
-    function promote(pieces, piece, promotion, latestWhiteKingState, latestBlackKingState){
+    function promote(promotion){
         //change dans le tableau des pièces la notation à l'endroit de la promotion
-        let team = (piece.side === "black") ? "b" : "w";
-        pieces[piece.coordinates.split('-')[0]][piece.coordinates.split('-')[1]] = team + promotion;
+        let team = (pieceSelected.side === "black") ? "b" : "w";
+        pieces[pieceSelected.coordinates.split('-')[0]][pieceSelected.coordinates.split('-')[1]] = team + promotion;
         
         //activation de fin de tour et retire les cartes de promotion
-        generateAttackAndCheck(pieces, latestWhiteKingState, latestBlackKingState);
+        generateAttackAndCheck(pieces, whiteKingState, blackKingState);
         setPieceSelected(null);
         setDisplayPromotion(false);
     }
 
     //function des cartes de promotions
-    function PromotionCards(props){
-        let {
-            piece,
-            pieces,
-            latestWhiteKingState,
-            latestBlackKingState
-        } = props;
-
+    function PromotionCards(){
         return (
             <div className='cards'>
-                <p className={`cards__title ${piece.side}`}>Choose the promotion</p>
+                <p className={`cards__title ${pieceSelected.side}`}>Choose the promotion</p>
                 <ul className='cards__list'>
-                    <li className={`card piece queen ${piece.side}`} key="queen" onClick={() => promote(pieces, piece, "q", latestWhiteKingState, latestBlackKingState)}></li>
-                    <li className={`card piece rook ${piece.side}`} key="rook" onClick={() => promote(pieces, piece, "r", latestWhiteKingState, latestBlackKingState)}></li>
-                    <li className={`card piece bishop ${piece.side}`} key="bishop" onClick={() => promote(pieces, piece, "b", latestWhiteKingState, latestBlackKingState)}></li>
-                    <li className={`card piece knight ${piece.side}`} key="knight" onClick={() => promote(pieces, piece, "n", latestWhiteKingState, latestBlackKingState)}></li>
-                </ul>
+                    <li className={`card piece queen ${pieceSelected.side}`} key="queen" onClick={() => promote("q")}></li>
+                    <li className={`card piece rook ${pieceSelected.side}`} key="rook" onClick={() => promote("r")}></li>
+                    <li className={`card piece bishop ${pieceSelected.side}`} key="bishop" onClick={() => promote("b")}></li>
+                    <li className={`card piece knight ${pieceSelected.side}`} key="knight" onClick={() => promote("n")}></li>
+                </ul>pieceSelected
             </div>
         );
     }
