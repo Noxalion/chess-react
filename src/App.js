@@ -198,6 +198,11 @@ function Game() {
         );
     }
 
+    //juste pour relancer le jeu, pour reset
+    function refreshPage(){
+        window.location.reload();
+    }
+
 
     //le rendu du plateau de jeu
     return (
@@ -206,8 +211,9 @@ function Game() {
                 Turn of the {teamTurn} team
             </div>
             {winner !== "none" && 
-                <div className={`winnerDisplay winnerDisplay--${winner.replace(/\s/g, '-')}`}>
-                    {winner}
+                <div className={`winnerDisplay winnerDisplay--${winner.replace(/\s/g, '-')}`} onClick={refreshPage}>
+                    {winner} 
+                    <span className="winnerDisplay__clickText"> &gt; Click to refresh &lt; </span>
                 </div>
             }
             <ul className='row-number'>

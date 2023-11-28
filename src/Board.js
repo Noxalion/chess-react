@@ -311,7 +311,7 @@ function Board(props) {
                 generateAttackAndCheck(nextPieces, latestWhiteKingState, latestBlackKingState);
             }
         }else if(action === "test"){
-            return generateAttackAndCheck(nextPieces, latestWhiteKingState, latestBlackKingState, "test", lastestWhiteAttack, latestBlackAttack, pieceToProcess.side);
+            return generateAttackAndCheck(nextPieces, latestWhiteKingState, latestBlackKingState, "test", pieceToProcess.side);
         }
     }
 
@@ -410,7 +410,7 @@ function Board(props) {
 
 
     //function pour update les tableaux d'attaques de chaque équipe
-    function generateAttackAndCheck(nextPieces, newWhiteKingState, newBlackKingState, action = "update", lastestWhiteAttack = structuredClone(whiteAttack), latestBlackAttack = structuredClone(blackAttack), teamForTest = "none"){
+    function generateAttackAndCheck(nextPieces, newWhiteKingState, newBlackKingState, action = "update", teamForTest = "none"){
         
         //copie de l'état du roi de chaque équipe
         let copyWhiteKingState = newWhiteKingState;
@@ -440,31 +440,34 @@ function Board(props) {
         ];
 
         //place une croix dans la case du tableau à chaque endroit où une case est attaquée
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                if (nextPieces[i][j] !== "  ") {
-                    //identifie la pièce et ses possibilités d'attaques
-                    let pieceThere = identifyPiece(nextPieces[i][j], i, j);
-                    let attackPossibility = ChessMoves(pieceThere, nextPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState, previousMove, "onlyAttack");
-
-                    //ajoute les possibilités d'attaques au tableau de l'équipe de la pièce
-                    if (pieceThere.side === "white") {
-                        for (let i = 0; i < attackPossibility.length; i++) {
-                            let attackRow = Number(attackPossibility[i].split('-')[0]);
-                            let attackColumn = Number(attackPossibility[i].split('-')[1]);
-
-                            nextWhiteAttack[attackRow][attackColumn] = "x";
+        for (let h = 0; h < 2; h++) {
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    //condition pour faire les rois à la fin, pour être sur qu'il n'y ai pas de problème (même si ça ne devrait pas être le cas)
+                    if ((nextPieces[i][j] !== "  " && h === 0) || ((nextPieces[i][j] === "bk" || nextPieces[i][j] === "wk") && h === 1)) {
+                        //identifie la pièce et ses possibilités d'attaques
+                        let pieceThere = identifyPiece(nextPieces[i][j], i, j);
+                        let attackPossibility = ChessMoves(pieceThere, nextPieces, identifyPiece, whiteCastlingPossibility, blackCastlingPossibility, nextWhiteAttack, nextBlackAttack, copyWhiteKingState, copyBlackKingState, previousMove, "onlyAttack");
+    
+                        //ajoute les possibilités d'attaques au tableau de l'équipe de la pièce
+                        if (pieceThere.side === "white") {
+                            for (let i = 0; i < attackPossibility.length; i++) {
+                                let attackRow = Number(attackPossibility[i].split('-')[0]);
+                                let attackColumn = Number(attackPossibility[i].split('-')[1]);
+    
+                                nextWhiteAttack[attackRow][attackColumn] = "x";
+                            }
+                        }else if (pieceThere.side === "black") {
+                            for (let i = 0; i < attackPossibility.length; i++) {
+                                let attackRow = Number(attackPossibility[i].split('-')[0]);
+                                let attackColumn = Number(attackPossibility[i].split('-')[1]);
+    
+                                nextBlackAttack[attackRow][attackColumn] = "x";
+                            }
                         }
-                    }else if (pieceThere.side === "black") {
-                        for (let i = 0; i < attackPossibility.length; i++) {
-                            let attackRow = Number(attackPossibility[i].split('-')[0]);
-                            let attackColumn = Number(attackPossibility[i].split('-')[1]);
-
-                            nextBlackAttack[attackRow][attackColumn] = "x";
-                        }
-                    }
-                }                
-            }
+                    }                
+                }
+            }            
         }
         
 
