@@ -417,20 +417,27 @@ function Board(props) {
         let copyBlackKingState = newBlackKingState;
 
         //copie du tableau des cases attaqués par chaque camp
-        const nextWhiteAttack = lastestWhiteAttack.slice();
-        const nextBlackAttack = latestBlackAttack.slice();
-        for (let i = 0; i < 8; i++) {
-            nextWhiteAttack[i] = lastestWhiteAttack[i].slice();
-            nextBlackAttack[i] = latestBlackAttack[i].slice();
-        }
+        const nextWhiteAttack = [
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+        ];
 
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                //reset les copies des tableaux pour être sûr de ne pas avoir une case attaquée alors que ce n'est pas le cas
-                nextWhiteAttack[i][j] = " ";
-                nextBlackAttack[i][j] = " ";
-            }
-        }
+        const nextBlackAttack = [
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+        ];
 
         //place une croix dans la case du tableau à chaque endroit où une case est attaquée
         for (let i = 0; i < 8; i++) {
@@ -616,7 +623,7 @@ function Board(props) {
                     <li className={`card piece rook ${pieceSelected.side}`} key="rook" onClick={() => promote("r")}></li>
                     <li className={`card piece bishop ${pieceSelected.side}`} key="bishop" onClick={() => promote("b")}></li>
                     <li className={`card piece knight ${pieceSelected.side}`} key="knight" onClick={() => promote("n")}></li>
-                </ul>pieceSelected
+                </ul>
             </div>
         );
     }

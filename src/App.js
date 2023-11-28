@@ -83,7 +83,7 @@ function Game() {
             setWinner("Black wins");
         }else if(latestBlackKingState.state === "checkmate"){
             setWinner("White wins");
-        }else if (latestWhiteKingState.state === "stalemate" || latestBlackKingState.state === "stalemate"){
+        }else if ((latestWhiteKingState.state === "stalemate" && teamTurn === "black") || (latestBlackKingState.state === "stalemate" && teamTurn === "white")){
             setWinner("Draw");
         }
     }
@@ -103,7 +103,6 @@ function Game() {
         newTurn++;
         checkGameState(latestWhiteKingState, latestBlackKingState);
         setTurn(newTurn);
-        console.log(blackAttack);
     }
 
     //pour afficher ou non les cartes de promotion
@@ -124,14 +123,14 @@ function Game() {
     function PreviousMoveDisplay(){
         //pour que les coordonnées soient présenté correctement par rapport au plateau et plus par rapport aux tableaux du code
         let ColumnMatching = {
-            0: "A",
-            1: "B",
-            2: "C",
-            3: "D",
-            4: "E",
-            5: "F",
-            6: "G",
-            7: "H",
+            0: "H",
+            1: "G",
+            2: "F",
+            3: "E",
+            4: "D",
+            5: "C",
+            6: "B",
+            7: "A",
         };
 
         let originRow = Number(previousMove[2].split('-')[0]);
@@ -179,13 +178,13 @@ function Game() {
         }
 
         let whiteKingMessage;
-        if (whiteKingState.state === "check") {
-            whiteKingMessage = `white king check`;
+        if (whiteKingState.state !== "free") {
+            whiteKingMessage = `white king ${whiteKingState.state}`;
         }
 
         let blackKingMessage;
-        if (blackKingState.state === "check") {
-            blackKingMessage = `black king check`;
+        if (blackKingState.state !== "free") {
+            blackKingMessage = `black king ${blackKingState.state}`;
         }
         
         return (
@@ -203,11 +202,9 @@ function Game() {
     //le rendu du plateau de jeu
     return (
         <div className='game'>
-            {winner === "none" &&
-                <div className={`turn turn--${teamTurn}`}>
-                    Turn of the {teamTurn} team
-                </div>
-            }
+            <div className={`turn turn--${teamTurn}`}>
+                Turn of the {teamTurn} team
+            </div>
             {winner !== "none" && 
                 <div className={`winnerDisplay winnerDisplay--${winner.replace(/\s/g, '-')}`}>
                     {winner}
@@ -224,14 +221,14 @@ function Game() {
                 <li>8</li>
             </ul>
             <ul className='column-number'>
-                <li>A</li>
-                <li>B</li>
-                <li>C</li>
-                <li>D</li>
-                <li>E</li>
-                <li>F</li>
-                <li>G</li>
                 <li>H</li>
+                <li>G</li>
+                <li>F</li>
+                <li>E</li>
+                <li>D</li>
+                <li>C</li>
+                <li>B</li>
+                <li>A</li>
             </ul>
             <Board 
                 pieces={pieces} 
